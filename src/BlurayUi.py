@@ -99,9 +99,13 @@ class BlurayMain(Screen):
 
 	def MoviePlayerCallback(self):
 		if self.res == '/media/bluray':
-			Console().ePopen('umount -f /media/bluray')
-			try:
-				os.rmdir('/media/bluray')
-			except Exception as e:
-				print '[BlurayPlayer] remove directory /media/bluray:', e
+			Console().ePopen('umount -f /media/bluray', self.umountIsoCallback)
+		else:
+			self.close()
+
+	def umountIsoCallback(self, result, retval, extra_args):
+		try:
+			os.rmdir('/media/bluray')
+		except Exception as e:
+			print '[BlurayPlayer] remove directory /media/bluray:', e
 		self.close()
