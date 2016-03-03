@@ -34,7 +34,7 @@ class BlurayPlayer(MoviePlayer):
 class BlurayMain(Screen):
 	skin = """
 		<screen position="center,center" size="640,370">
-			<widget name="info" position="center,10" size="620,60" halign="center" font="Regular;22" />
+			<widget name="name" position="center,10" size="620,60" halign="center" font="Regular;30" />
 			<widget source="list" render="Listbox" position="10,70" size="620,240" \
 				scrollbarMode="showOnDemand" >
 				<convert type="TemplatedMultiContent" >
@@ -61,6 +61,7 @@ class BlurayMain(Screen):
 		self.setTitle(_('Blu-ray player'))
 		self.session = session
 		self.res = res
+		self.name = ''
 		self['key_red'] = StaticText(_('Exit'))
 		self['key_green'] = StaticText(_('Ok'))
 		self['actions'] = ActionMap(['OkCancelActions', 'ColorActions'],
@@ -71,7 +72,8 @@ class BlurayMain(Screen):
 				'green': self.Ok,
 			})
 		self['list'] = List([])
-		self['info'] = Label()
+		self['name'] = Label()
+		# Generate titles
 		content = []
 		x = 1
 		try:
@@ -87,14 +89,29 @@ class BlurayMain(Screen):
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
 			content.append((_('Error in reading tiles!'), None))
 		self['list'].setList(content)
+		# Set name
+		content = os.path.join(self.res, 'BDMV/META/DL/')
+		if os.path.exists(content):
+			for x in os.listdir(content):
+				if x[-4:] == '.xml':
+					try:
+						self.name = open(os.path.join(content, x)).read().split('<di:name>')[1].split('</di:name>')[0]
+					except:
+						pass
+		if not self.name:
+			if self.res[-1:] == '/':
+				self.res = self.res[:-1]
+			try:
+				self.name = self.res.rsplit('/', 1)[1]
+			except:
+				pass
+		self['name'].setText(self.name)
 
 	def Ok(self):
 		current = self['list'].getCurrent()
 		if current and current[1]:
-			playref = current[1]
-			ref = eServiceReference(3, 0, playref)
-			ref.setName(playref.rsplit('/BDMV')[0].rsplit('/')[1])
-			print '[BlurayPlayer] Play:', playref
+			ref = eServiceReference(3, 0, current[1])
+			ref.setName(self.name)
 			self.session.openWithCallback(self.MoviePlayerCallback, BlurayPlayer, ref)
 
 	def MoviePlayerCallback(self):
