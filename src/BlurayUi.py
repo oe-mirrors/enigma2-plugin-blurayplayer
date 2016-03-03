@@ -2,16 +2,13 @@ import os
 
 from enigma import eServiceReference
 from Components.ActionMap import ActionMap
-from Components.config import config
 from Components.Console import Console
 from Components.Label import Label
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
-from Plugins.Plugin import PluginDescriptor
 from Screens.InfoBar import InfoBar, MoviePlayer
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from Tools.BoundFunction import boundFunction
 
 import blurayinfo
 
@@ -32,15 +29,6 @@ class BlurayPlayer(MoviePlayer):
 	def leavePlayerConfirmed(self, answer):
 		if answer:
 			self.close()
-
-	def getPluginList(self):
-		from Components.PluginComponent import plugins
-		list = []
-		for p in plugins.getPlugins(where=PluginDescriptor.WHERE_EXTENSIONSMENU):
-			if p.name != _('Blu-ray player'):
-				list.append(((boundFunction(self.getPluginName, p.name),
-					boundFunction(self.runPlugin, p), lambda: True), None))
-		return list
 
 
 class BlurayMain(Screen):
