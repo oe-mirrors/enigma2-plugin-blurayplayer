@@ -10,6 +10,7 @@ from Screens.InfoBar import InfoBar, MoviePlayer
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 
+from . import _
 import blurayinfo
 
 
