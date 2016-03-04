@@ -97,7 +97,8 @@ class BlurayMain(Screen):
 			for x in os.listdir(content):
 				if x[-4:] == '.xml':
 					try:
-						self.name = open(os.path.join(content, x)).read().split('<di:name>')[1].split('</di:name>')[0]
+						self.name = open(os.path.join(content, x)).read()\
+							.split('<di:name>')[1].split('</di:name>')[0]
 					except:
 						pass
 		if not self.name:
