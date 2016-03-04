@@ -151,7 +151,7 @@ class BlurayMain(Screen):
 		current = self['list'].getCurrent()
 		if current and current[1]:
 			ref = eServiceReference(3, 0, current[1])
-			ref.setName(self.name + ' ' + current[1].rsplit('/', 1)[1])
+			ref.setName('%s - %s' % (self.name, current[1].rsplit('/', 1)[1]))
 			self.Timer.start(20000, True)
 			self.session.openWithCallback(self.MoviePlayerCallback, BlurayPlayer, ref)
 
