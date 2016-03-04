@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-03 20:58+0200\n"
+"POT-Creation-Date: 2016-03-04 19:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "%d. Duration %d:%02d minutes"
 msgstr ""
 
-#: BlurayUi.py:40 BlurayUi.py:73
+#: BlurayUi.py:69
 msgid "Blu-ray player"
 msgstr ""
 
@@ -30,14 +30,14 @@ msgstr ""
 msgid "Error in reading tiles!"
 msgstr ""
 
-#: BlurayUi.py:76
+#: BlurayUi.py:74
 msgid "Exit"
 msgstr ""
 
-#: BlurayUi.py:77
+#: BlurayUi.py:75
 msgid "Ok"
 msgstr ""
 
-#: BlurayUi.py:28
+#: BlurayUi.py:29
 msgid "Stop playing this movie?"
 msgstr ""
