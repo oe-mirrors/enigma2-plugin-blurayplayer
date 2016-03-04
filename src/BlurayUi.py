@@ -1,14 +1,17 @@
 import os
 
-from enigma import eServiceReference
+from enigma import ePicLoad, eServiceReference
 from Components.ActionMap import ActionMap
+from Components.AVSwitch import AVSwitch
 from Components.Console import Console
 from Components.Label import Label
+from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Screens.InfoBar import InfoBar, MoviePlayer
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
+from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
 from . import _
 import blurayinfo
@@ -37,9 +40,9 @@ class BlurayPlayer(MoviePlayer):
 
 class BlurayMain(Screen):
 	skin = """
-		<screen position="center,center" size="640,370">
-			<widget name="name" position="center,10" size="620,60" halign="center" font="Regular;30" />
-			<widget source="list" render="Listbox" position="10,70" size="620,240" \
+		<screen position="center,center" size="630,300">
+			<widget name="name" position="10,10" size="620,60" halign="center" font="Regular;30" />
+			<widget source="list" render="Listbox" position="10,70" size="300,170" \
 				scrollbarMode="showOnDemand" >
 				<convert type="TemplatedMultiContent" >
 				{
@@ -50,13 +53,14 @@ class BlurayMain(Screen):
 				}
 				</convert>
 			</widget>
-			<ePixmap position="114,321" size="140,40" pixmap="skin_default/buttons/red.png" \
+			<widget name="thumbnail" position="320,70" size="300,170" transparent="1" alphatest="on" />
+			<ePixmap position="114,251" size="140,40" pixmap="skin_default/buttons/red.png" \
 				transparent="1" alphatest="on" />
-			<ePixmap position="378,321" size="140,40" pixmap="skin_default/buttons/green.png" \
+			<ePixmap position="378,251" size="140,40" pixmap="skin_default/buttons/green.png" \
 				transparent="1" alphatest="on" />
-			<widget source="key_red" render="Label" position="110,328" zPosition="2" size="148,30" \
+			<widget source="key_red" render="Label" position="110,258" zPosition="2" size="148,30" \
 				valign="center" halign="center" font="Regular;22" transparent="1" />
-			<widget source="key_green" render="Label" position="370,328" zPosition="2" size="148,30" \
+			<widget source="key_green" render="Label" position="370,258" zPosition="2" size="148,30" \
 				valign="center" halign="center" font="Regular;22" transparent="1" />
 		</screen>"""
 
@@ -77,30 +81,42 @@ class BlurayMain(Screen):
 			})
 		self['list'] = List([])
 		self['name'] = Label()
-		# Generate titles
+		self['thumbnail'] = Pixmap()
+		# Get titles
 		content = []
 		x = 1
 		try:
 			for title in blurayinfo.getTitles(self.res):
 				playfile = os.path.join(self.res, 'BDMV/STREAM/', title[1] + '.m2ts')
 				title_entry = _('%d. Duration %d:%02d minutes') % \
-					(x, title[0] / (45000 * 60), (title[0] / 45000) % 60)
+						(x, title[0] / (45000 * 60), (title[0] / 45000) % 60)
 				content.append((title_entry, playfile))
 				x += 1
 		except Exception as e:
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
 			content.append((_('Error in reading tiles!'), None))
 		self['list'].setList(content)
-		# Set name
-		content = os.path.join(self.res, 'BDMV/META/DL/')
-		if os.path.exists(content):
-			for x in os.listdir(content):
-				if x[-4:] == '.xml':
+		self.onLayoutFinish.append(self.LayoutFinish)
+
+	def LayoutFinish(self):
+		# Get name and thumbnail
+		thumbnail = None
+		path = os.path.join(self.res, 'BDMV/META/DL/')
+		if os.path.exists(path):
+			fileSize = 1000000
+			for x in os.listdir(path):
+				dlFile = os.path.join(path, x)
+				if dlFile[-4:] == '.xml':
 					try:
-						self.name = open(os.path.join(content, x)).read()\
-							.split('<di:name>')[1].split('</di:name>')[0]
+						self.name = open(dlFile).read()\
+								.split('<di:name>')[1].split('</di:name>')[0]
 					except:
 						pass
+				elif dlFile[-4:] == '.jpg':
+					size = os.stat(dlFile).st_size
+					if size > 0 and size < fileSize:
+						fileSize = size
+						thumbnail = dlFile
 		if not self.name:
 			if self.res[-1:] == '/':
 				self.res = self.res[:-1]
@@ -109,6 +125,23 @@ class BlurayMain(Screen):
 			except:
 				self.name = 'Bluray'
 		self['name'].setText(self.name)
+		if not thumbnail:
+			thumbnail = resolveFilename(SCOPE_PLUGINS,
+					'Extensions/BlurayPlayer/icon.png')
+		size = AVSwitch().getFramebufferScale()
+		self.picloads = ePicLoad()
+		self.picloads.PictureData.get().append(self.FinishDecode)
+		self.picloads.setPara((
+				self['thumbnail'].instance.size().width(),
+				self['thumbnail'].instance.size().height(),
+				size[0], size[1], False, 1, '#00000000'))
+		self.picloads.startDecode(thumbnail)
+
+	def FinishDecode(self, picInfo = None):
+		ptr = self.picloads.getData()
+		if ptr:
+			self['thumbnail'].instance.setPixmap(ptr.__deref__())
+			del self.picloads
 
 	def Ok(self):
 		current = self['list'].getCurrent()
