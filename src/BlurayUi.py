@@ -1,6 +1,6 @@
 import os
 
-from enigma import ePicLoad, eServiceReference
+from enigma import ePicLoad, eServiceReference, eTimer
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.Console import Console
@@ -70,18 +70,21 @@ class BlurayMain(Screen):
 		self.session = session
 		self.res = res
 		self.name = ''
+		self.closeScreen = False
 		self['key_red'] = StaticText(_('Exit'))
 		self['key_green'] = StaticText(_('Ok'))
 		self['actions'] = ActionMap(['OkCancelActions', 'ColorActions'],
 			{
-				'cancel': self.close,
-				'red': self.close,
+				'cancel': self.Exit,
+				'red': self.Exit,
 				'ok': self.Ok,
 				'green': self.Ok,
 			})
 		self['list'] = List([])
 		self['name'] = Label()
 		self['thumbnail'] = Pixmap()
+		self.Timer = eTimer()
+		self.Timer.timeout.callback.append(self.enableCloseScreen)
 
 		content = []
 		x = 1
@@ -149,9 +152,19 @@ class BlurayMain(Screen):
 		if current and current[1]:
 			ref = eServiceReference(3, 0, current[1])
 			ref.setName(self.name)
+			self.Timer.start(20000, True)
 			self.session.openWithCallback(self.MoviePlayerCallback, BlurayPlayer, ref)
 
+	def enableCloseScreen(self):
+		self.closeScreen = True
+
 	def MoviePlayerCallback(self):
+		if self.closeScreen:
+			self.Exit()
+		else:
+			self.Timer.stop()
+
+	def Exit(self):
 		if self.res == '/media/bluray':
 			Console().ePopen('umount -f /media/bluray', self.umountIsoCallback)
 		else:
