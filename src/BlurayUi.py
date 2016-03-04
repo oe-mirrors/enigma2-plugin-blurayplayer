@@ -82,7 +82,7 @@ class BlurayMain(Screen):
 		self['list'] = List([])
 		self['name'] = Label()
 		self['thumbnail'] = Pixmap()
-		# Get titles
+
 		content = []
 		x = 1
 		try:
@@ -99,7 +99,6 @@ class BlurayMain(Screen):
 		self.onLayoutFinish.append(self.LayoutFinish)
 
 	def LayoutFinish(self):
-		# Get name and thumbnail
 		thumbnail = None
 		path = os.path.join(self.res, 'BDMV/META/DL/')
 		if os.path.exists(path):
@@ -117,6 +116,7 @@ class BlurayMain(Screen):
 					if size > 0 and size < fileSize:
 						fileSize = size
 						thumbnail = dlFile
+
 		if not self.name:
 			if self.res[-1:] == '/':
 				self.res = self.res[:-1]
@@ -125,6 +125,7 @@ class BlurayMain(Screen):
 			except:
 				self.name = 'Bluray'
 		self['name'].setText(self.name)
+
 		if not thumbnail:
 			thumbnail = resolveFilename(SCOPE_PLUGINS,
 					'Extensions/BlurayPlayer/icon.png')
