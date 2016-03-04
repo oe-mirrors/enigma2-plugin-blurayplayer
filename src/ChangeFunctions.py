@@ -2,7 +2,6 @@ import os
 from types import MethodType
 
 from Components.Console import Console
-from Screens.InfoBar import InfoBar
 from Screens.MovieSelection import MovieSelection
 
 
