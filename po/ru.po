@@ -21,8 +21,8 @@ msgstr "%d. Продолжительность %d:%02d минут"
 msgid "Blu-ray player"
 msgstr "Blu-ray плеер"
 
-msgid "Error in reading tiles!"
-msgstr "Ошибка чтения заголовок!"
+msgid "Error in reading titles..."
+msgstr "Ошибка чтения заголовок..."
 
 msgid "Exit"
 msgstr "Выйти"

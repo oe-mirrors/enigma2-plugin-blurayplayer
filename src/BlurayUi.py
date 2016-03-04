@@ -97,7 +97,7 @@ class BlurayMain(Screen):
 				x += 1
 		except Exception as e:
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
-			content.append((_('Error in reading tiles!'), None))
+			content.append((_('Error in reading titles...'), None))
 		self['list'].setList(content)
 		self.onLayoutFinish.append(self.LayoutFinish)
 

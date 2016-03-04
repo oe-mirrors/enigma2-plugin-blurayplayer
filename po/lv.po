@@ -21,8 +21,8 @@ msgstr "%d. Ilgums %d:%02d minūtes"
 msgid "Blu-ray player"
 msgstr "Blu-ray atskaņotājs"
 
-msgid "Error in reading tiles!"
-msgstr "Kļūda nolasot titrus!"
+msgid "Error in reading titles..."
+msgstr "Kļūda nolasot titrus..."
 
 msgid "Exit"
 msgstr "Iziet"

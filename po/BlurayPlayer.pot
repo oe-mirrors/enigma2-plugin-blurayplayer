@@ -27,7 +27,7 @@ msgid "Blu-ray player"
 msgstr ""
 
 #: BlurayUi.py:100
-msgid "Error in reading tiles!"
+msgid "Error in reading titles..."
 msgstr ""
 
 #: BlurayUi.py:74
