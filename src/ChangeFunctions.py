@@ -5,8 +5,8 @@ from Components.Console import Console
 from Screens.MovieSelection import MovieSelection
 
 
-# Replaces the original gotFilename to add bluray folder check at the beginning
-# Call after it original gotFilename as orig_gotFilename to to keep it code unchanged
+# Replaces the original gotFilename to add bluray folder test at the beginning
+# If test fails call original gotFilename as orig_gotFilename to to keep the code unchanged
 old_gotFilename = MovieSelection.gotFilename
 
 
@@ -32,6 +32,7 @@ MovieSelection.gotFilename = gotFilename
 
 
 # Replaces the original itemSelectedCheckTimeshiftCallback to add iso mount at the beginning
+# If mount fails call original as orig_itemSelectedCheckTimeshiftCallback to to keep code unchanged
 old_Callback = MovieSelection.itemSelectedCheckTimeshiftCallback
 
 
@@ -44,7 +45,7 @@ def itemSelectedCheckTimeshiftCallback(self, ext, path, answer):
 				try:
 					os.mkdir('/media/bluray')
 				except Exception as e:
-					print '[BlurayPlayer] Cannot create directory:', e
+					print '[BlurayPlayer] Cannot create /media/bluray', e
 			Console().ePopen('mount -r %s /media/bluray' % path, self.mountIsoCallback, path)
 		else:
 			self.orig_itemSelectedCheckTimeshiftCallback(ext, path, answer)
@@ -58,7 +59,7 @@ def mountIsoCallback(self, result, retval, extra_args):
 		try:
 			os.rmdir('/media/bluray')
 		except Exception as e:
-			print '[BlurayPlayer] Cannot remove directory:', e
+			print '[BlurayPlayer] Cannot remove /media/bluray', e
 		self.orig_itemSelectedCheckTimeshiftCallback(ext='.iso', path=extra_args, answer=True)
 
 
