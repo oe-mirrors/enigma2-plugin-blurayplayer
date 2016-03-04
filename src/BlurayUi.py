@@ -79,11 +79,9 @@ class BlurayMain(Screen):
 		x = 1
 		try:
 			for title in blurayinfo.getTitles(self.res):
-				duration = title[0]
-				clip_id = title[1]
-				playfile = os.path.join(self.res, 'BDMV/STREAM/', clip_id + '.m2ts')
+				playfile = os.path.join(self.res, 'BDMV/STREAM/', title[1] + '.m2ts')
 				title_entry = _('%d. Duration %d:%02d minutes') % \
-					(x, duration / (45000 * 60), (duration / 45000) % 60)
+					(x, title[0] / (45000 * 60), (title[0] / 45000) % 60)
 				content.append((title_entry, playfile))
 				x += 1
 		except Exception as e:
