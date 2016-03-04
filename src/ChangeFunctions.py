@@ -16,7 +16,6 @@ def gotFilename(self, res, selItem=None):
 		if 'BDMV/STREAM/' not in folder:
 			folder = folder[:-7] + 'BDMV/STREAM/'
 		if os.path.isdir(folder):
-			clip_id = None
 			try:
 				from Plugins.Extensions.BlurayPlayer import BlurayUi
 				self.session.open(BlurayUi.BlurayMain, res)
