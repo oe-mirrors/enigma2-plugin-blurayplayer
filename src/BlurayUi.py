@@ -31,6 +31,9 @@ class BlurayPlayer(MoviePlayer):
 		if answer:
 			self.close()
 
+	def showMovies(self):
+		pass
+
 
 class BlurayMain(Screen):
 	skin = """
