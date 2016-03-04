@@ -103,7 +103,7 @@ class BlurayMain(Screen):
 			try:
 				self.name = self.res.rsplit('/', 1)[1]
 			except:
-				pass
+				self.name = 'Bluray'
 		self['name'].setText(self.name)
 
 	def Ok(self):
