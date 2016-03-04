@@ -165,14 +165,14 @@ class BlurayMain(Screen):
 			self.Timer.stop()
 
 	def Exit(self):
-		if self.res == '/media/bluray':
-			Console().ePopen('umount -f /media/bluray', self.umountIsoCallback)
+		if self.res == '/media/Bluray':
+			Console().ePopen('umount -f /media/Bluray', self.umountIsoCallback)
 		else:
 			self.close()
 
 	def umountIsoCallback(self, result, retval, extra_args):
 		try:
-			os.rmdir('/media/bluray')
+			os.rmdir('/media/Bluray')
 		except Exception as e:
-			print '[BlurayPlayer] remove directory /media/bluray:', e
+			print '[BlurayPlayer] remove directory /media/Bluray:', e
 		self.close()
