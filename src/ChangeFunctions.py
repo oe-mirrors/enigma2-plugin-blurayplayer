@@ -45,6 +45,7 @@ def itemSelectedCheckTimeshiftCallback(self, ext, path, answer):
 					os.mkdir('/media/bluray')
 				except Exception as e:
 					print '[BlurayPlayer] Cannot create /media/bluray', e
+			path = path.replace(' ', '\ ')
 			Console().ePopen('mount -r %s /media/bluray' % path, self.mountIsoCallback, path)
 		else:
 			self.orig_itemSelectedCheckTimeshiftCallback(ext, path, answer)
