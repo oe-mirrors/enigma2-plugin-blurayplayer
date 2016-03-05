@@ -168,7 +168,7 @@ class BlurayMain(Screen):
 				size[0], size[1], False, 1, '#00000000'))
 		self.picloads.startDecode(thumbnail)
 
-	def FinishDecode(self, picInfo = None):
+	def FinishDecode(self, picInfo=None):
 		ptr = self.picloads.getData()
 		if ptr:
 			self['thumbnail'].instance.setPixmap(ptr.__deref__())
