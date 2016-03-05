@@ -12,9 +12,7 @@ old_gotFilename = MovieSelection.gotFilename
 
 def gotFilename(self, res, selItem=None):
 	if res and os.path.isdir(res):
-		folder = os.path.join(res, 'STREAM/')
-		if 'BDMV/STREAM/' not in folder:
-			folder = folder[:-7] + 'BDMV/STREAM/'
+		folder = os.path.join(res, 'BDMV/STREAM/')
 		if os.path.isdir(folder):
 			try:
 				from Plugins.Extensions.BlurayPlayer import BlurayUi
