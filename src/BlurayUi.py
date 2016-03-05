@@ -1,6 +1,6 @@
 import os
 
-from enigma import ePicLoad, eServiceReference, eTimer
+from enigma import ePicLoad, eServiceReference, eTimer, getDesktop
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.Console import Console
@@ -39,30 +39,57 @@ class BlurayPlayer(MoviePlayer):
 
 
 class BlurayMain(Screen):
-	skin = """
-		<screen position="center,center" size="630,300">
-			<widget name="name" position="10,10" size="620,60" halign="center" font="Regular;30" />
-			<widget source="list" render="Listbox" position="10,70" size="300,170" \
-				scrollbarMode="showOnDemand" >
-				<convert type="TemplatedMultiContent" >
-				{
-					"template": [MultiContentEntryText(pos=(10, 1), size=(600, 30), \
-							font=0, flags=RT_HALIGN_LEFT|RT_VALIGN_CENTER, text=0)],
-					"fonts": [gFont("Regular", 20)],
-					"itemHeight": 30
-				}
-				</convert>
-			</widget>
-			<widget name="thumbnail" position="320,70" size="300,170" transparent="1" alphatest="on" />
-			<ePixmap position="114,251" size="140,40" pixmap="skin_default/buttons/red.png" \
-				transparent="1" alphatest="on" />
-			<ePixmap position="378,251" size="140,40" pixmap="skin_default/buttons/green.png" \
-				transparent="1" alphatest="on" />
-			<widget source="key_red" render="Label" position="110,258" zPosition="2" size="148,30" \
-				valign="center" halign="center" font="Regular;22" transparent="1" />
-			<widget source="key_green" render="Label" position="370,258" zPosition="2" size="148,30" \
-				valign="center" halign="center" font="Regular;22" transparent="1" />
-		</screen>"""
+	screenWidth = getDesktop(0).size().width()
+	if screenWidth and screenWidth > 1280:
+		skin = """
+			<screen position="center,center" size="795,450">
+				<widget name="name" position="15,15" size="780,90" halign="center" font="Regular;45" />
+				<widget source="list" render="Listbox" position="15,105" size="450,255" \
+					scrollbarMode="showOnDemand" >
+					<convert type="TemplatedMultiContent" >
+					{
+						"template": [MultiContentEntryText(pos=(15, 1), size=(450, 45), \
+								font=0, flags=RT_HALIGN_LEFT|RT_VALIGN_CENTER, text=0)],
+						"fonts": [gFont("Regular", 30)],
+						"itemHeight": 45
+					}
+					</convert>
+				</widget>
+				<widget name="thumbnail" position="480,105" size="300,170" transparent="1" alphatest="on" />
+				<ePixmap position="96,376" size="210,60" pixmap="skin_default/buttons/red.png" \
+					transparent="1" alphatest="on" />
+				<ePixmap position="492,376" size="210,60" pixmap="skin_default/buttons/green.png" \
+					transparent="1" alphatest="on" />
+				<widget source="key_red" render="Label" position="90,387" zPosition="2" size="222,45" \
+					valign="center" halign="center" font="Regular;33" transparent="1" />
+				<widget source="key_green" render="Label" position="480,387" zPosition="2" size="222,45" \
+					valign="center" halign="center" font="Regular;33" transparent="1" />
+			</screen>"""
+	else:
+		skin = """
+			<screen position="center,center" size="630,300">
+				<widget name="name" position="10,10" size="620,60" halign="center" font="Regular;30" />
+				<widget source="list" render="Listbox" position="10,70" size="300,170" \
+					scrollbarMode="showOnDemand" >
+					<convert type="TemplatedMultiContent" >
+					{
+						"template": [MultiContentEntryText(pos=(10, 1), size=(300, 30), \
+								font=0, flags=RT_HALIGN_LEFT|RT_VALIGN_CENTER, text=0)],
+						"fonts": [gFont("Regular", 20)],
+						"itemHeight": 30
+					}
+					</convert>
+				</widget>
+				<widget name="thumbnail" position="320,70" size="300,170" transparent="1" alphatest="on" />
+				<ePixmap position="114,251" size="140,40" pixmap="skin_default/buttons/red.png" \
+					transparent="1" alphatest="on" />
+				<ePixmap position="378,251" size="140,40" pixmap="skin_default/buttons/green.png" \
+					transparent="1" alphatest="on" />
+				<widget source="key_red" render="Label" position="110,258" zPosition="2" size="148,30" \
+					valign="center" halign="center" font="Regular;22" transparent="1" />
+				<widget source="key_green" render="Label" position="370,258" zPosition="2" size="148,30" \
+					valign="center" halign="center" font="Regular;22" transparent="1" />
+			</screen>"""
 
 	def __init__(self, session, res):
 		Screen.__init__(self, session)
