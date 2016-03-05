@@ -151,7 +151,7 @@ class BlurayMain(Screen):
 			if self.res[-1:] == '/':
 				self.res = self.res[:-1]
 			try:
-				self.name = self.res.rsplit('/', 1)[1]
+				self.name = self.res.rsplit('/', 1)[1].replace('Bluray_', '')
 			except:
 				self.name = 'Bluray'
 		self['name'].setText(self.name)
@@ -192,14 +192,14 @@ class BlurayMain(Screen):
 			self.Timer.stop()
 
 	def Exit(self):
-		if self.res == '/media/Bluray':
-			Console().ePopen('umount -f /media/Bluray', self.umountIsoCallback)
+		if '/media/Bluray_' in self.res:
+			Console().ePopen('umount -f %s' % self.res, self.umountIsoCallback)
 		else:
 			self.close()
 
 	def umountIsoCallback(self, result, retval, extra_args):
 		try:
-			os.rmdir('/media/Bluray')
+			os.rmdir(self.res)
 		except Exception as e:
-			print '[BlurayPlayer] Cannot remove /media/Bluray', e
+			print '[BlurayPlayer] Cannot remove', self.res, e
 		self.close()

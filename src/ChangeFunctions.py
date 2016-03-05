@@ -38,31 +38,40 @@ old_Callback = MovieSelection.itemSelectedCheckTimeshiftCallback
 def itemSelectedCheckTimeshiftCallback(self, ext, path, answer):
 	if answer:
 		if ext == '.iso' and path[:10] != '/media/net':
-			if os.path.exists('/media/Bluray'):
-				Console().ePopen('umount -f /media/Bluray')
+			iso_path = path.replace(' ', '\ ')
+			mount_path = '/media/Bluray_' + \
+					iso_path.rsplit('/', 1)[1].replace('.iso', '')
+			if os.path.exists(mount_path):
+				Console().ePopen('umount -f %s' % mount_path)
 			else:
 				try:
-					os.mkdir('/media/Bluray')
+					os.mkdir(mount_path)
 				except Exception as e:
-					print '[BlurayPlayer] Cannot create /media/Bluray', e
-			path = path.replace(' ', '\ ')
-			Console().ePopen('mount -r %s /media/Bluray' % path, self.mountIsoCallback, path)
+					print '[BlurayPlayer] Cannot create', mount_path, e
+			Console().ePopen('mount -r %s %s' % (iso_path, mount_path),
+					self.mountIsoCallback, (path, mount_path))
 		else:
 			self.orig_itemSelectedCheckTimeshiftCallback(ext, path, answer)
 
 
 def mountIsoCallback(self, result, retval, extra_args):
-	if os.path.isdir('/media/Bluray/BDMV/STREAM'):
-		self.gotFilename('/media/Bluray')
+	path = extra_args[0]
+	mount_path = extra_args[1]
+	if os.path.isdir(os.path.join(mount_path, 'BDMV/STREAM')):
+		self.gotFilename(mount_path)
 	else:
-		Console().ePopen('umount -f /media/Bluray')
-		try:
-			os.rmdir('/media/Bluray')
-		except Exception as e:
-			print '[BlurayPlayer] Cannot remove /media/Bluray', e
-		self.orig_itemSelectedCheckTimeshiftCallback(ext='.iso', path=extra_args, answer=True)
+		Console().ePopen('umount -f %s' % mount_path, self.umountIsoCallback, (path, mount_path))
+
+
+def umountIsoCallback(self, result, retval, extra_args):
+	try:
+		os.rmdir(extra_args[1])
+	except Exception as e:
+		print '[BlurayPlayer] Cannot remove', extra_args[1], e
+	self.orig_itemSelectedCheckTimeshiftCallback(ext='.iso', path=extra_args[0], answer=True)
 
 
 MovieSelection.orig_itemSelectedCheckTimeshiftCallback = MethodType(old_Callback, None, MovieSelection)
 MovieSelection.mountIsoCallback = MethodType(mountIsoCallback, None, MovieSelection)
+MovieSelection.umountIsoCallback = MethodType(umountIsoCallback, None, MovieSelection)
 MovieSelection.itemSelectedCheckTimeshiftCallback = itemSelectedCheckTimeshiftCallback
