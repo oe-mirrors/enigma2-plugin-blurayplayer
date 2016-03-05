@@ -26,7 +26,7 @@ class BlurayPlayer(MoviePlayer):
 	def handleLeave(self, how):
 		if how == 'ask':
 			self.session.openWithCallback(self.leavePlayerConfirmed,
-				MessageBox, _('Stop playing this movie?'))
+					MessageBox, _('Stop playing this movie?'))
 		else:
 			self.close()
 
@@ -101,12 +101,12 @@ class BlurayMain(Screen):
 		self['key_red'] = StaticText(_('Exit'))
 		self['key_green'] = StaticText(_('Ok'))
 		self['actions'] = ActionMap(['OkCancelActions', 'ColorActions'],
-			{
-				'cancel': self.Exit,
-				'red': self.Exit,
-				'ok': self.Ok,
-				'green': self.Ok,
-			})
+				{
+					'cancel': self.Exit,
+					'red': self.Exit,
+					'ok': self.Ok,
+					'green': self.Ok,
+				})
 		self['list'] = List([])
 		self['name'] = Label()
 		self['thumbnail'] = Pixmap()
@@ -201,5 +201,5 @@ class BlurayMain(Screen):
 		try:
 			os.rmdir('/media/Bluray')
 		except Exception as e:
-			print '[BlurayPlayer] remove directory /media/Bluray:', e
+			print '[BlurayPlayer] Cannot remove /media/Bluray', e
 		self.close()

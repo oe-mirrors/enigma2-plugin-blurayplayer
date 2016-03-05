@@ -8,7 +8,7 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 def localeInit():
 	environ['LANGUAGE'] = language.getLanguage()[:2]
 	bindtextdomain('BlurayPlayer', resolveFilename(SCOPE_PLUGINS,
-		'Extensions/BlurayPlayer/locale'))
+			'Extensions/BlurayPlayer/locale'))
 
 
 def _(txt):
