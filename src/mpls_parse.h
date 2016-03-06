@@ -24,6 +24,8 @@
 #include "attributes.h"
 #include "uo_mask_table.h"
 
+#define BD_MARK_ENTRY   0x01
+
 typedef struct
 {
     uint8_t         stream_type;

@@ -158,14 +158,94 @@ static MPLS_PL* _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
 	return pl;
 }
 
+static uint32_t _pl_chapter_count(MPLS_PL *pl)
+{
+	unsigned ii, chapters = 0;
+
+	// Count the number of "entry" marks (skipping "link" marks)
+	// This is the the number of chapters
+	for (ii = 0; ii < pl->mark_count; ii++) {
+		if (pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
+			chapters++;
+		}
+	}
+
+	return chapters;
+}
+
+static void _video_props(MPLS_STN *s, int *full_hd, int *mpeg12)
+{
+	unsigned ii;
+	*mpeg12 = 1;
+	*full_hd = 0;
+
+	for (ii = 0; ii < s->num_video; ii++) {
+		if (s->video[ii].coding_type > 4) {
+			*mpeg12 = 0;
+		}
+		/* Video format 1080i or 1080p */
+		if (s->video[ii].format == 4 || s->video[ii].format == 6) {
+			*full_hd = 1;
+		}
+	}
+}
+
+static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
+{
+	MPLS_STN *s1 = &p1->play_item[0].stn;
+	MPLS_STN *s2 = &p2->play_item[0].stn;
+	int fhd1, fhd2, mp12_1, mp12_2;
+
+	_video_props(s1, &fhd1, &mp12_1);
+	_video_props(s2, &fhd2, &mp12_2);
+
+	/* prefer Full HD over HD/SD */
+	if (fhd1 != fhd2) {
+		return fhd2 - fhd1;
+	}
+
+	/* prefer H.264/VC1 over MPEG1/2 */
+	return mp12_2 - mp12_1;
+}
+
+static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
+{
+	uint32_t d1 = _pl_duration(p1);
+	uint32_t d2 = _pl_duration(p2);
+
+	/* if both longer than 30 min */
+	if (d1 > 30*60*45000 && d2 > 30*60*45000) {
+		/* prefer many chapters over few chapters */
+		int chap_diff = _pl_chapter_count(p2) - _pl_chapter_count(p1);
+		if (chap_diff < -3 || chap_diff > 3) {
+			/* chapter count differs by more than 3 */
+			return chap_diff;
+		}
+		/* Check video: prefer HD over SD, H.264/VC1 over MPEG1/2 */
+		int vid_diff = _cmp_video_props(p1, p2);
+		if (vid_diff) {
+			return vid_diff;
+		}
+	}
+
+	/* Compare playlist duration, select longer playlist */
+	if (d1 < d2) {
+		return 1;
+	}
+	if (d1 > d2) {
+		return -1;
+	}
+
+	return 0;
+}
+
 static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 {
 	int ii;
 
 	tList[pos].duration = _pl_duration(pl);
 	for (ii = 0; ii < pl->list_count; ii++) {
-		MPLS_PI *pi;
-		pi = &pl->play_item[ii];
+		MPLS_PI *pi = &pl->play_item[ii];
 		strcpy(tList[pos].clip_id, pi->clip[0].clip_id);
 		//printf("%s.m2ts ", pi->clip[0].clip_id);
 	}
@@ -178,7 +258,6 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 	//printf("Directory: %s:\n", bd_path);
 	MPLS_PL *pl;
 	int ii, ti = 1, pl_ii = 0, main_ii = 0;
-	uint32_t duration = 0;
 	MPLS_PL *pl_list[1000];
 	struct stat st;
 	char *path = NULL;
@@ -223,12 +302,12 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 		pl = _process_file(name, pl_list, pl_ii);
 		free(name);
 		if (pl != NULL) {
-			uint32_t pl_duration = _pl_duration(pl);
-			if (pl_duration >= duration) {
-				duration = pl_duration;
+			pl_list[pl_ii] = pl;
+			/* Main title guessing */
+			if (pl_ii > 0 && _pl_guess_main_title(pl_list[pl_ii], pl_list[main_ii]) <= 0) {
 				main_ii = pl_ii;
 			}
-			pl_list[pl_ii++] = pl;
+			pl_ii++;
 		}
 	}
 	free(dirlist);
