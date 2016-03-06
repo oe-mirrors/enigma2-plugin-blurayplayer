@@ -162,8 +162,8 @@ static uint32_t _pl_chapter_count(MPLS_PL *pl)
 {
 	unsigned ii, chapters = 0;
 
-	// Count the number of "entry" marks (skipping "link" marks)
-	// This is the the number of chapters
+	/* Count the number of "entry" marks (skipping "link" marks)
+	   This is the the number of chapters */
 	for (ii = 0; ii < pl->mark_count; ii++) {
 		if (pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
 			chapters++;
@@ -199,12 +199,12 @@ static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
 	_video_props(s1, &fhd1, &mp12_1);
 	_video_props(s2, &fhd2, &mp12_2);
 
-	/* prefer Full HD over HD/SD */
+	/* Prefer Full HD over HD/SD */
 	if (fhd1 != fhd2) {
 		return fhd2 - fhd1;
 	}
 
-	/* prefer H.264/VC1 over MPEG1/2 */
+	/* Prefer H.264/VC1 over MPEG1/2 */
 	return mp12_2 - mp12_1;
 }
 
@@ -213,12 +213,12 @@ static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
 	uint32_t d1 = _pl_duration(p1);
 	uint32_t d2 = _pl_duration(p2);
 
-	/* if both longer than 30 min */
+	/* If both longer than 30 min */
 	if (d1 > 30*60*45000 && d2 > 30*60*45000) {
-		/* prefer many chapters over few chapters */
+		/* Prefer many chapters over few chapters */
 		int chap_diff = _pl_chapter_count(p2) - _pl_chapter_count(p1);
 		if (chap_diff < -3 || chap_diff > 3) {
-			/* chapter count differs by more than 3 */
+			/* Chapter count differs by more than 3 */
 			return chap_diff;
 		}
 		/* Check video: prefer HD over SD, H.264/VC1 over MPEG1/2 */
