@@ -190,6 +190,18 @@ static void _video_props(MPLS_STN *s, int *full_hd, int *mpeg12)
 	}
 }
 
+static void _audio_props(MPLS_STN *s, int *hd_audio)
+{
+	unsigned ii;
+	*hd_audio = 0;
+
+	for (ii = 0; ii < s->num_audio; ii++) {
+		if (s->audio[ii].format == 0x80 || s->audio[ii].format >= 0x83) {
+			*hd_audio = 1;
+		}
+	}
+}
+
 static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
 {
 	MPLS_STN *s1 = &p1->play_item[0].stn;
@@ -208,6 +220,19 @@ static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
 	return mp12_2 - mp12_1;
 }
 
+static int _cmp_audio_props(const MPLS_PL *p1, const MPLS_PL *p2)
+{
+	MPLS_STN *s1 = &p1->play_item[0].stn;
+	MPLS_STN *s2 = &p2->play_item[0].stn;
+	int hda1, hda2;
+
+	_audio_props(s1, &hda1);
+	_audio_props(s2, &hda2);
+
+	/* prefer HD audio formats */
+	return hda2 - hda1;
+}
+
 static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
 {
 	uint32_t d1 = _pl_duration(p1);
@@ -215,16 +240,26 @@ static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
 
 	/* If both longer than 30 min */
 	if (d1 > 30*60*45000 && d2 > 30*60*45000) {
-		/* Prefer many chapters over few chapters */
-		int chap_diff = _pl_chapter_count(p2) - _pl_chapter_count(p1);
-		if (chap_diff < -3 || chap_diff > 3) {
-			/* Chapter count differs by more than 3 */
+
+		/* prefer many chapters over no chapters */
+		int chap1 = _pl_chapter_count(p1);
+		int chap2 = _pl_chapter_count(p2);
+		int chap_diff = chap2 - chap1;
+		if ((chap1 < 2 || chap2 < 2) && (chap_diff < -5 || chap_diff > 5)) {
+			/* chapter count differs by more than 5 */
 			return chap_diff;
 		}
+
 		/* Check video: prefer HD over SD, H.264/VC1 over MPEG1/2 */
 		int vid_diff = _cmp_video_props(p1, p2);
 		if (vid_diff) {
 			return vid_diff;
+		}
+
+		/* compare audio: prefer HD audio */
+		int aud_diff = _cmp_audio_props(p1, p2);
+		if (aud_diff) {
+			return aud_diff;
 		}
 	}
 
