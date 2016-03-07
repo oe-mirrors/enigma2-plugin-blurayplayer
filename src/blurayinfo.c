@@ -28,7 +28,49 @@ typedef struct {
 	uint32_t duration;
 	char clip_id[128];
 	char languages[256];
+	char coding_type[512];
 } titlelist;
+
+typedef struct {
+	int value;
+	const char *str;
+} VALUE_MAP;
+
+/* Codec map see in enigma pmtparse and servicedvb */
+const VALUE_MAP codec_map[] = {
+	{0x01, "MPEG-1 Video"},
+	{0x02, "MPEG-2 Video"},
+	{0x03, "MPEG"},
+	{0x04, "MPEG"},
+	{0x80, "LPCM"},
+	{0x81, "AC3"},
+	{0x82, "DTS"},
+	{0x83, "TrueHD"},
+	{0x84, "AC3+"},
+	{0x85, "DTS-HD"},
+	{0x86, "DTS-HD"},
+	{0xa1, "AC3"},
+	{0xa2, "DTS"},
+	{0xea, "MPEG"},
+	{0x1b, "???"},
+	{0x90, "Presentation Graphics"},
+	{0x91, "Interactive Graphics"},
+	{0x92, "Text Subtitle"},
+	{0, NULL}
+};
+
+static const char* _lookup_str(const VALUE_MAP *map, int val)
+{
+	int ii;
+
+	for (ii = 0; map[ii].str; ii++) {
+		if (val == map[ii].value) {
+			return map[ii].str;
+		}
+	}
+
+	return "???";
+}
 
 static char *_mk_path(const char *base, const char *sub)
 {
@@ -283,14 +325,20 @@ static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 	for (ii = 0; ii < pl->list_count; ii++) {
 		MPLS_PI *pi = &pl->play_item[ii];
 		strcpy(tList[pos].clip_id, pi->clip[0].clip_id);
-		//printf("%s.m2ts", pi->clip[0].clip_id);
+		//printf("%s.m2ts\n", pi->clip[0].clip_id);
+
 		for (jj = 0; jj < pi->stn.num_audio; jj++) {
-			char *lang = NULL;
+			char *lang = NULL, *coding = NULL;
 			lang = _mk_path(tList[pos].languages, pi->stn.audio[jj].lang);
 			strcpy(tList[pos].languages, lang);
 			free(lang);
+
+			coding = _mk_path(tList[pos].coding_type, _lookup_str(codec_map, pi->stn.audio[jj].coding_type));
+			strcpy(tList[pos].coding_type, coding);
+			free(coding);
 		}
-		//printf("\n%s\n", tList[pos].languages);
+		//printf("%s\n", tList[pos].languages);
+		//printf("%s\n", tList[pos].coding_type);
 	}
 
 	return 0;
@@ -394,7 +442,7 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 	titlelist *tList;
 	int i;
 	char *s;
-	PyObject *plist, *result, *duration, *clip_id, *languages;
+	PyObject *plist, *result, *duration, *clip_id, *languages, *coding_type;
 
 	if(!PyArg_ParseTuple(args, "s", &s)) {
 		fprintf(stderr, "[blurayinfo] getTitles: wrong arguments!\n");
@@ -422,9 +470,11 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 			duration = Py_BuildValue("k", (unsigned long)tList[i].duration);
 			clip_id = Py_BuildValue("s", tList[i].clip_id);
 			languages = Py_BuildValue("s", tList[i].languages);
+			coding_type = Py_BuildValue("s", tList[i].coding_type);
 			PyList_Append(plist, duration);
 			PyList_Append(plist, clip_id);
 			PyList_Append(plist, languages);
+			PyList_Append(plist, coding_type);
 			PyList_Append(result, plist);
 			if(!(plist = PyList_New(0))) {
 				freeTitleList(tList);
