@@ -26,7 +26,8 @@
 
 typedef struct {
 	uint32_t duration;
-	char clip_id[125];
+	char clip_id[128];
+	char languages[256];
 } titlelist;
 
 static char *_mk_path(const char *base, const char *sub)
@@ -276,13 +277,20 @@ static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
 
 static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 {
-	int ii;
+	int ii, jj;
 
 	tList[pos].duration = _pl_duration(pl);
 	for (ii = 0; ii < pl->list_count; ii++) {
 		MPLS_PI *pi = &pl->play_item[ii];
 		strcpy(tList[pos].clip_id, pi->clip[0].clip_id);
-		//printf("%s.m2ts ", pi->clip[0].clip_id);
+		//printf("%s.m2ts", pi->clip[0].clip_id);
+		for (jj = 0; jj < pi->stn.num_audio; jj++) {
+			char *lang = NULL;
+			lang = _mk_path(tList[pos].languages, pi->stn.audio[jj].lang);
+			strcpy(tList[pos].languages, lang);
+			free(lang);
+		}
+		//printf("\n%s\n", tList[pos].languages);
 	}
 
 	return 0;
@@ -352,14 +360,14 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 
 	/* Store and clean usable playlists */
 	for (ii = 0; ii < pl_ii; ii++) {
+		//printf("%d -- Duration: %4u:%02u ", ii, _pl_duration(pl_list[ii]) / (45000 * 60), (_pl_duration(pl_list[ii]) / 45000) % 60);
 		if (ii == main_ii) {
-			//printf("Main: ");
+			//printf("Main ");
 			storeInfo(pl_list[ii], tList, 0);
 		}
 		else {
 			storeInfo(pl_list[ii], tList, ti++);
 		}
-		//printf("%d -- Duration: %4u:%02u\n", ii, _pl_duration(pl_list[ii]) / (45000 * 60), (_pl_duration(pl_list[ii]) / 45000) % 60);
 		bd_free_mpls(pl_list[ii]);
 	}
 
@@ -386,7 +394,7 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 	titlelist *tList;
 	int i;
 	char *s;
-	PyObject *plist, *result, *duration, *clip_id;
+	PyObject *plist, *result, *duration, *clip_id, *languages;
 
 	if(!PyArg_ParseTuple(args, "s", &s)) {
 		fprintf(stderr, "[blurayinfo] getTitles: wrong arguments!\n");
@@ -413,8 +421,10 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 		else {
 			duration = Py_BuildValue("k", (unsigned long)tList[i].duration);
 			clip_id = Py_BuildValue("s", tList[i].clip_id);
+			languages = Py_BuildValue("s", tList[i].languages);
 			PyList_Append(plist, duration);
 			PyList_Append(plist, clip_id);
+			PyList_Append(plist, languages);
 			PyList_Append(result, plist);
 			if(!(plist = PyList_New(0))) {
 				freeTitleList(tList);
