@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-04 19:45+0200\n"
+"POT-Creation-Date: 2016-03-08 00:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,27 +17,55 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: BlurayUi.py:94
+#: BlurayUi.py:248
 #, python-format
 msgid "%d. Duration %d:%02d minutes"
 msgstr ""
 
-#: BlurayUi.py:69
+#: BlurayUi.py:129
+msgid "Audio plugins"
+msgstr ""
+
+#: BlurayUi.py:224
 msgid "Blu-ray player"
 msgstr ""
 
-#: BlurayUi.py:100
+#: BlurayUi.py:60
+msgid "Channel"
+msgstr ""
+
+#: BlurayUi.py:257
 msgid "Error in reading titles..."
 msgstr ""
 
-#: BlurayUi.py:74
+#: BlurayUi.py:229
 msgid "Exit"
 msgstr ""
 
-#: BlurayUi.py:75
+#: BlurayUi.py:49
+msgid "Multi channel downmix"
+msgstr ""
+
+#: BlurayUi.py:230
 msgid "Ok"
 msgstr ""
 
-#: BlurayUi.py:29
+#: BlurayUi.py:41
+msgid "Select audio track"
+msgstr ""
+
+#: BlurayUi.py:153
 msgid "Stop playing this movie?"
+msgstr ""
+
+#: BlurayUi.py:56
+msgid "left"
+msgstr ""
+
+#: BlurayUi.py:56
+msgid "right"
+msgstr ""
+
+#: BlurayUi.py:56
+msgid "stereo"
 msgstr ""
