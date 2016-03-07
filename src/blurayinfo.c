@@ -239,7 +239,7 @@ static void _audio_props(MPLS_STN *s, int *hd_audio)
 	*hd_audio = 0;
 
 	for (ii = 0; ii < s->num_audio; ii++) {
-		if (s->audio[ii].format == 0x80 || s->audio[ii].format >= 0x83) {
+		if (s->audio[ii].format == 0x80) {
 			*hd_audio = 1;
 		}
 	}
