@@ -66,7 +66,7 @@ class BlurayAudioSelection(AudioSelection):
 							li = 0
 						else:
 							languages[0] = self.languages[li]
-							li += 1
+							li += x
 
 					if selectedAudio == x:
 						selected = 'X'
