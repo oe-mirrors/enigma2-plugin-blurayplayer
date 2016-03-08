@@ -30,11 +30,11 @@ class BlurayPlayer(MoviePlayer):
 			self.session.openWithCallback(self.leavePlayerConfirmed,
 					MessageBox, _('Stop playing this movie?'))
 		else:
-			self.close()
+			self.close(how)
 
 	def leavePlayerConfirmed(self, answer):
 		if answer:
-			self.close()
+			self.close(answer)
 
 	def showMovies(self):
 		pass
@@ -195,11 +195,17 @@ class BlurayMain(Screen):
 	def enableCloseScreen(self):
 		self.closeScreen = True
 
-	def MoviePlayerCallback(self):
-		if self.closeScreen:
-			self.Exit()
+	def MoviePlayerCallback(self, how):
+		if how == 'loop' and self['list'].getIndex() < self['list'].count() - 1:
+			self['list'].selectNext()
+			self.Ok()
+		elif how == 'repeatcurrent':
+			self.Ok()
 		else:
-			self.Timer.stop()
+			if self.closeScreen:
+				self.Exit()
+			else:
+				self.Timer.stop()
 
 	def Exit(self):
 		if '/media/Bluray_' in self.res:
