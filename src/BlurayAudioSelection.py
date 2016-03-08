@@ -63,10 +63,10 @@ class BlurayAudioSelection(AudioSelection):
 						while self.codecs[li] != description and self.codecs[li] != 'END':
 							li += 1
 						if self.codecs[li] == 'END':
-							li = 0
+							li = x
 						else:
 							languages[0] = self.languages[li]
-							li += x
+							li += 1
 
 					if selectedAudio == x:
 						selected = 'X'
