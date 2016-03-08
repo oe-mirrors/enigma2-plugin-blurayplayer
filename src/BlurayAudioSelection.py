@@ -49,8 +49,11 @@ class BlurayAudioSelection(AudioSelection):
 					conflist.append(('',))
 					self['key_green'].setBoolean(False)
 				selectedAudio = self.audioTracks.getCurrentTrack()
+				li = len(self.codecs)
+				lang_dif = n - li
+				if self.languages[li - 1] != 'END':
+					self.languages.append('END')
 				li = 0
-				self.codecs.append('END')
 				for x in range(n):
 					number = str(x + 1)
 					i = audio.getTrackInfo(x)
@@ -59,10 +62,11 @@ class BlurayAudioSelection(AudioSelection):
 					selected = ''
 					language = ''
 
-					if not languages[0] and description:
-						while self.codecs[li] != description and self.codecs[li] != 'END':
-							li += 1
-						if self.codecs[li] == 'END':
+					if not languages[0]:
+						if lang_dif and description:
+							while self.codecs[li] != description and self.languages[li] != 'END':
+								li += 1
+						if self.languages[li] == 'END':
 							li = x
 						else:
 							languages[0] = self.languages[li]
