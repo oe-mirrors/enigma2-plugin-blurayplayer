@@ -42,7 +42,7 @@ const VALUE_MAP codec_map[] = {
 	{0x02, "MPEG-2 Video"},
 	{0x03, "MPEG"},
 	{0x04, "MPEG"},
-	{0x80, "???"},
+	{0x80, "LPCM"},
 	{0x81, "AC3"},
 	{0x82, "DTS"},
 	{0x83, "TrueHD"},
