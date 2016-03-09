@@ -1,8 +1,10 @@
 import os
 from types import MethodType
 
+from enigma import eTimer
 from Components.Console import Console
 from Screens.MovieSelection import MovieSelection
+from Tools.BoundFunction import boundFunction
 
 
 # Replaces the original gotFilename to add bluray folder test at the beginning
@@ -46,7 +48,7 @@ def itemSelectedCheckTimeshiftCallback(self, ext, path, answer):
 				except Exception as e:
 					print '[BlurayPlayer] Cannot create', mount_path, e
 			Console().ePopen('mount -r %s %s' % (iso_path, mount_path),
-					self.mountIsoCallback, (path, mount_path))
+					self.mountIsoCallback, (path, mount_path, True))
 		else:
 			self.orig_itemSelectedCheckTimeshiftCallback(ext, path, answer)
 
@@ -54,8 +56,16 @@ def itemSelectedCheckTimeshiftCallback(self, ext, path, answer):
 def mountIsoCallback(self, result, retval, extra_args):
 	path = extra_args[0]
 	mount_path = extra_args[1]
+	remount = extra_args[2]
+	if not remount:
+		del self.remountTimer
 	if os.path.isdir(os.path.join(mount_path, 'BDMV/STREAM')):
 		self.gotFilename(mount_path)
+	elif remount:
+		self.remountTimer = eTimer()
+		self.remountTimer.timeout.callback.append(boundFunction(self.mountIsoCallback,
+				None, None, (path, mount_path, False)))
+		self.remountTimer.start(2000, False)
 	else:
 		Console().ePopen('umount -f %s' % mount_path, self.umountIsoCallback, (path, mount_path))
 
