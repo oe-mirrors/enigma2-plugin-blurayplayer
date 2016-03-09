@@ -51,7 +51,7 @@ class BlurayAudioSelection(AudioSelection):
 			selectedAudio = self.audioTracks.getCurrentTrack()
 
 			lang_len = len(self.languages)
-			lang_dif = n - lang_len
+			lang_dif = lang_len - n
 			li = 0
 
 			for x in range(n):
@@ -63,7 +63,7 @@ class BlurayAudioSelection(AudioSelection):
 				language = ''
 
 				if lang_dif and description:
-					while self.codecs[li] != description and li < lang_len:
+					while self.codecs[li] != description and li < x + lang_dif:
 						li += 1
 				if li == lang_len:
 					li = x
