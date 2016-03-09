@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma-plugin 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-08 00:39+0200\n"
+"POT-Creation-Date: 2016-03-10 01:18+0200\n"
 "PO-Revision-Date: 2016-03-03 20:58+0200\n"
 "Last-Translator: Tapat <taapat@gmail.com>\n"
 "Language-Team: Taapat <taapat@gmail.com>\n"
@@ -39,11 +39,17 @@ msgstr "Dudzkanālu skaņas dekodēšana"
 msgid "Ok"
 msgstr "Ok"
 
+msgid "Please select the blu-ray disc"
+msgstr "Lūdzu izvēlieties blu-ray disku"
+
 msgid "Select audio track"
 msgstr "Izvēlieties skaņas celiņu"
 
 msgid "Stop playing this movie?"
 msgstr "Apturēt šīs filmas atskaņošanu?"
+
+msgid "Watch blu-ray discs in folder or iso"
+msgstr "Skatieties blu-ray diskus mapēs vai iso"
 
 msgid "left"
 msgstr "kreisais"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma-plugin 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-08 00:39+0200\n"
+"POT-Creation-Date: 2016-03-10 01:18+0200\n"
 "PO-Revision-Date: 2016-03-03 20:58+0200\n"
 "Last-Translator: Tapat <taapat@gmail.com>\n"
 "Language-Team: Taapat <taapat@gmail.com>\n"
@@ -39,11 +39,17 @@ msgstr "Мультиканальное микширование"
 msgid "Ok"
 msgstr "OK"
 
+msgid "Please select the blu-ray disc"
+msgstr "Пожалуйста выберите blu-ray диск"
+
 msgid "Select audio track"
 msgstr "Выбор аудио дорожки"
 
 msgid "Stop playing this movie?"
 msgstr "Остановить воспроизведение этого видео?"
+
+msgid "Watch blu-ray discs in folder or iso"
+msgstr "Смотрите blu-ray диски в папке или в iso"
 
 msgid "left"
 msgstr "слево"
