@@ -1,11 +1,13 @@
 import os
 
+from enigma import eTimer
 from Components.ActionMap import ActionMap
 from Components.config import config
 from Components.Console import Console
 from Components.FileList import FileList
 from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
+from Tools.BoundFunction import boundFunction
 
 from . import _
 from BlurayUi import BlurayMain
@@ -49,13 +51,21 @@ class BlurayPlayerDirBrowser(Screen):
 				except Exception as e:
 					print '[BlurayPlayer] Cannot create', mount_path, e
 			Console().ePopen('mount -r %s %s' % (iso_path, mount_path),
-					self.mountIsoCallback, mount_path)
+					self.mountIsoCallback, (mount_path, True))
 
 	def mountIsoCallback(self, result, retval, extra_args):
-		if os.path.isdir(os.path.join(extra_args, 'BDMV/STREAM/')):
-			self.session.open(BlurayMain, extra_args)
+		if not extra_args[1]:
+			del self.remountTimer
+		if os.path.isdir(os.path.join(extra_args[0], 'BDMV/STREAM/')):
+			self.session.open(BlurayMain, extra_args[0])
+		elif extra_args[1]:
+			self.remountTimer = eTimer()
+			self.remountTimer.timeout.callback.append(boundFunction(self.mountIsoCallback,
+					None, None, (extra_args[0], False)))
+			self.remountTimer.start(2000, False)
 		else:
-			Console().ePopen('umount -f %s' % extra_args, self.umountIsoCallback, extra_args)
+			Console().ePopen('umount -f %s' % extra_args[0],
+					self.umountIsoCallback, extra_args[0])
 
 	def umountIsoCallback(self, result, retval, extra_args):
 		try:
