@@ -18,9 +18,8 @@ class BlurayPlayerDirBrowser(Screen):
 		self.skinName = ['BlurayPlayerDirBrowser', 'FileBrowser']
 		self['key_red'] = StaticText(_('Exit'))
 		self['key_green'] = StaticText(_('Ok'))
-		filelist = FileList(directory = config.usage.default_path.value,
+		self['filelist'] = FileList(directory = config.usage.default_path.value,
 				matchingPattern = '(?i)^.*\.(iso)')
-		self['filelist'] = filelist
 		self['FilelistActions'] = ActionMap(['SetupActions', 'ColorActions'],
 				{
 					'cancel': self.close,
@@ -28,9 +27,6 @@ class BlurayPlayerDirBrowser(Screen):
 					'ok': self.ok,
 					'green': self.ok
 				})
-		self.onLayoutFinish.append(self.layoutFinished)
-
-	def layoutFinished(self):
 		self.setTitle(_('Please select the blu-ray disc'))
 
 	def ok(self):
