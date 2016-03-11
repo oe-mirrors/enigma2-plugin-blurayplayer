@@ -13,7 +13,7 @@ class BlurayAudioSelection(AudioSelection):
 	def __init__(self, session, infobar, languages, codecs):
 		page = 'audio'
 		AudioSelection.__init__(self, session, infobar, page)
-		self.skinName = 'AudioSelection'
+		self.skinName = ['BlurayAudioSelection', 'AudioSelection']
 		self.languages = languages
 		self.codecs = codecs
 		self.codecs.append('')

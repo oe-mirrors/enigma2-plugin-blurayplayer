@@ -20,7 +20,7 @@ import blurayinfo
 class BlurayPlayer(MoviePlayer):
 	def __init__(self, session, service, languages, codecs):
 		MoviePlayer.__init__(self, session, service)
-		self.skinName = 'MoviePlayer'
+		self.skinName = ['BlurayPlayer', 'MoviePlayer']
 		self.servicelist = InfoBar.instance and InfoBar.instance.servicelist
 		self.languages = languages
 		self.codecs = codecs
