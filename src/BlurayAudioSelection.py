@@ -16,7 +16,7 @@ class BlurayAudioSelection(AudioSelection):
 		self.skinName = ['BlurayAudioSelection', 'AudioSelection']
 		self.languages = languages
 		self.codecs = codecs
-		self.codecs.append('')
+		self.codecs.append('_')
 
 	def fillList(self, arg=None):
 		streams = []
@@ -63,7 +63,7 @@ class BlurayAudioSelection(AudioSelection):
 				selected = ''
 				language = ''
 
-				if lang_dif and description:
+				if lang_dif and description in self.codecs:
 					while li < lang_len and self.codecs[li] != description:
 						li += 1
 				if li >= lang_len:
