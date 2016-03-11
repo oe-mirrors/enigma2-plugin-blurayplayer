@@ -51,7 +51,7 @@ class BlurayMain(Screen):
 		skin = """
 			<screen position="center,center" size="855,450">
 				<widget name="name" position="15,15" size="825,90" halign="center" font="Regular;45" />
-				<widget source="list" render="Listbox" position="15,105" size="510,255" \
+				<widget source="list" render="Listbox" position="15,105" size="510,270" \
 					scrollbarMode="showOnDemand" >
 					<convert type="TemplatedMultiContent" >
 					{
@@ -76,7 +76,7 @@ class BlurayMain(Screen):
 		skin = """
 			<screen position="center,center" size="670,300">
 				<widget name="name" position="10,10" size="650,60" halign="center" font="Regular;30" />
-				<widget source="list" render="Listbox" position="10,70" size="340,170" \
+				<widget source="list" render="Listbox" position="10,70" size="340,180" \
 					scrollbarMode="showOnDemand" >
 					<convert type="TemplatedMultiContent" >
 					{
