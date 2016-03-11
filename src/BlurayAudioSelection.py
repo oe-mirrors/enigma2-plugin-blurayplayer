@@ -63,9 +63,9 @@ class BlurayAudioSelection(AudioSelection):
 				language = ''
 
 				if lang_dif and description:
-					while self.codecs[li] != description and li < x + lang_dif:
+					while li < lang_len and self.codecs[li] != description:
 						li += 1
-				if li == lang_len:
+				if li >= lang_len:
 					li = x
 				else:
 					if not languages[0]:
