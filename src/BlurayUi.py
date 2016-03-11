@@ -41,7 +41,7 @@ class BlurayPlayer(MoviePlayer):
 
 	def audioSelection(self):
 		from BlurayAudioSelection import BlurayAudioSelection
-		self.session.open(BlurayAudioSelection, infobar=self, page='audio',
+		self.session.open(BlurayAudioSelection, infobar=self,
 				languages=self.languages, codecs=self.codecs)
 
 
