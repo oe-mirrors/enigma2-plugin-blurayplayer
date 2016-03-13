@@ -51,18 +51,20 @@ class BlurayPlayerDirBrowser(Screen):
 				except Exception as e:
 					print '[BlurayPlayer] Cannot create', mount_path, e
 			Console().ePopen('mount -r %s %s' % (iso_path, mount_path),
-					self.mountIsoCallback, (mount_path, True))
+					self.mountIsoCallback, (mount_path, 0))
 
 	def mountIsoCallback(self, result, retval, extra_args):
-		if not extra_args[1]:
+		remount = extra_args[1]
+		if remount != 0:
 			del self.remountTimer
 		if os.path.isdir(os.path.join(extra_args[0], 'BDMV/STREAM/')):
 			self.session.open(BlurayMain, extra_args[0])
-		elif extra_args[1]:
+		elif remount < 5:
+			remount += 1
 			self.remountTimer = eTimer()
 			self.remountTimer.timeout.callback.append(boundFunction(self.mountIsoCallback,
-					None, None, (extra_args[0], False)))
-			self.remountTimer.start(2000, False)
+					None, None, (extra_args[0], remount)))
+			self.remountTimer.start(1000, False)
 		else:
 			Console().ePopen('umount -f %s' % extra_args[0],
 					self.umountIsoCallback, extra_args[0])
