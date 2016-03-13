@@ -41,8 +41,8 @@ class BlurayPlayerDirBrowser(Screen):
 		elif fileName and fileName[-1:] != '/':
 			currentDir = self['filelist'].getCurrentDirectory()
 			iso_path = os.path.join(currentDir, fileName).replace(' ', '\ ')
-			mount_path = '/media/Bluray_' + \
-					iso_path.rsplit('/', 1)[1].replace('.iso', '')
+			mount_path = '/media/Bluray_%s' % \
+					os.path.splitext(iso_path)[0].rsplit('/', 1)[1]
 			if os.path.exists(mount_path):
 				Console().ePopen('umount -f %s' % mount_path)
 			else:
