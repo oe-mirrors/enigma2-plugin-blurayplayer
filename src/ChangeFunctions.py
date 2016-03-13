@@ -46,7 +46,7 @@ def itemSelectedCheckTimeshiftCallback(self, ext, path, answer):
 				except Exception as e:
 					print '[BlurayPlayer] Cannot create', mount_path, e
 			Console().ePopen('mount -r %s %s' % (iso_path, mount_path),
-					self.mountIsoCallback, (path, mount_path, True))
+					self.mountIsoCallback, (path, mount_path, 0))
 		else:
 			self.orig_itemSelectedCheckTimeshiftCallback(ext, path, answer)
 
@@ -55,14 +55,15 @@ def mountIsoCallback(self, result, retval, extra_args):
 	path = extra_args[0]
 	mount_path = extra_args[1]
 	remount = extra_args[2]
-	if not remount:
+	if remount != 0:
 		del self.remountTimer
 	if os.path.isdir(os.path.join(mount_path, 'BDMV/STREAM')):
 		self.gotFilename(mount_path)
-	elif remount:
+	elif remount < 5:
+		remount += 1
 		self.remountTimer = eTimer()
 		self.remountTimer.timeout.callback.append(boundFunction(self.mountIsoCallback,
-				None, None, (path, mount_path, False)))
+				None, None, (path, mount_path, remount)))
 		self.remountTimer.start(2000, False)
 	else:
 		Console().ePopen('umount -f %s' % mount_path, self.umountIsoCallback, (path, mount_path))
