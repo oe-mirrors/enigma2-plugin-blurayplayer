@@ -33,12 +33,12 @@ class BlurayPlayerDirBrowser(Screen):
 
 	def ok(self):
 		fileName = self['filelist'].getFilename()
-		if fileName[-1:] == '/' and \
+		if fileName and fileName[-1:] == '/' and \
 				os.path.isdir(os.path.join(fileName, 'BDMV/STREAM/')):
 			self.session.open(BlurayMain, fileName)
 		elif self['filelist'].canDescent():
 			self['filelist'].descent()
-		elif fileName[-1:] != '/':
+		elif fileName and fileName[-1:] != '/':
 			currentDir = self['filelist'].getCurrentDirectory()
 			iso_path = os.path.join(currentDir, fileName).replace(' ', '\ ')
 			mount_path = '/media/Bluray_' + \
