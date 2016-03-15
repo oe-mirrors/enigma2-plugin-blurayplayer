@@ -1,4 +1,6 @@
-"Project-Id-Version: PACKAGE VERSION\n"
+msgid ""
+msgstr ""
+"Project-Id-Version: enigma-plugin 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-03-04 19:45+0200\n"
 "PO-Revision-Date: 2016-03-13 22:53+0200\n"
@@ -12,27 +14,21 @@
 "X-Generator: Poedit 1.8.7\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: BlurayUi.py:94
 #, python-format
 msgid "%d. Duration %d:%02d minutes"
 msgstr "%d. süresi %d:%02d dakika"
 
-#: BlurayUi.py:69
 msgid "Blu-ray player"
 msgstr "Blu-Ray Oynatıcı"
 
-#: BlurayUi.py:100
 msgid "Error in reading titles..."
 msgstr "başlıkları okurken hata oluştu..."
 
-#: BlurayUi.py:74
 msgid "Exit"
 msgstr "Çıkış"
 
-#: BlurayUi.py:75
 msgid "Ok"
 msgstr "Tamam"
 
-#: BlurayUi.py:29
 msgid "Stop playing this movie?"
 msgstr "bu filmin oynatımı durdurulsun mu ?"

@@ -18,24 +18,31 @@ import blurayinfo
 
 
 class BlurayPlayer(MoviePlayer):
-	def __init__(self, session, service):
+	def __init__(self, session, service, languages, codecs):
 		MoviePlayer.__init__(self, session, service)
-		self.skinName = 'MoviePlayer'
+		self.skinName = ['BlurayPlayer', 'MoviePlayer']
 		self.servicelist = InfoBar.instance and InfoBar.instance.servicelist
+		self.languages = languages
+		self.codecs = codecs
 
 	def handleLeave(self, how):
 		if how == 'ask':
 			self.session.openWithCallback(self.leavePlayerConfirmed,
 					MessageBox, _('Stop playing this movie?'))
 		else:
-			self.close()
+			self.close(how)
 
 	def leavePlayerConfirmed(self, answer):
 		if answer:
-			self.close()
+			self.close(answer)
 
 	def showMovies(self):
 		pass
+
+	def audioSelection(self):
+		from BlurayAudioSelection import BlurayAudioSelection
+		self.session.open(BlurayAudioSelection, infobar=self,
+				languages=self.languages, codecs=self.codecs)
 
 
 class BlurayMain(Screen):
@@ -44,7 +51,7 @@ class BlurayMain(Screen):
 		skin = """
 			<screen position="center,center" size="855,450">
 				<widget name="name" position="15,15" size="825,90" halign="center" font="Regular;45" />
-				<widget source="list" render="Listbox" position="15,105" size="510,255" \
+				<widget source="list" render="Listbox" position="15,105" size="510,270" \
 					scrollbarMode="showOnDemand" >
 					<convert type="TemplatedMultiContent" >
 					{
@@ -69,7 +76,7 @@ class BlurayMain(Screen):
 		skin = """
 			<screen position="center,center" size="670,300">
 				<widget name="name" position="10,10" size="650,60" halign="center" font="Regular;30" />
-				<widget source="list" render="Listbox" position="10,70" size="340,170" \
+				<widget source="list" render="Listbox" position="10,70" size="340,180" \
 					scrollbarMode="showOnDemand" >
 					<convert type="TemplatedMultiContent" >
 					{
@@ -117,14 +124,16 @@ class BlurayMain(Screen):
 		x = 1
 		try:
 			for title in blurayinfo.getTitles(self.res):
-				playfile = os.path.join(self.res, 'BDMV/STREAM/', title[1] + '.m2ts')
 				title_entry = _('%d. Duration %d:%02d minutes') % \
 						(x, title[0] / (45000 * 60), (title[0] / 45000) % 60)
-				content.append((title_entry, playfile))
+				playfile = os.path.join(self.res, 'BDMV/STREAM/', title[1] + '.m2ts')
+				languages = title[2][1:].split('/')
+				codecs = title[3][1:].split('/')
+				content.append((title_entry, playfile, languages, codecs))
 				x += 1
 		except Exception as e:
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
-			content.append((_('Error in reading titles...'), None))
+			content.append((_('Error in reading titles...'), None, None, None))
 		self['list'].setList(content)
 		self.onLayoutFinish.append(self.LayoutFinish)
 
@@ -180,16 +189,23 @@ class BlurayMain(Screen):
 			ref = eServiceReference(3, 0, current[1])
 			ref.setName('%s - %s' % (self.name, current[1][-10:]))
 			self.Timer.start(20000, True)
-			self.session.openWithCallback(self.MoviePlayerCallback, BlurayPlayer, ref)
+			self.session.openWithCallback(self.MoviePlayerCallback,
+					BlurayPlayer, service=ref, languages=current[2], codecs=current[3])
 
 	def enableCloseScreen(self):
 		self.closeScreen = True
 
-	def MoviePlayerCallback(self):
-		if self.closeScreen:
-			self.Exit()
+	def MoviePlayerCallback(self, how):
+		if how == 'loop' and self['list'].getIndex() < self['list'].count() - 1:
+			self['list'].selectNext()
+			self.Ok()
+		elif how == 'repeatcurrent':
+			self.Ok()
 		else:
-			self.Timer.stop()
+			if self.closeScreen:
+				self.Exit()
+			else:
+				self.Timer.stop()
 
 	def Exit(self):
 		if '/media/Bluray_' in self.res:
