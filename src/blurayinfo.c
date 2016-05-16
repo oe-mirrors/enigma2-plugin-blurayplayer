@@ -21,6 +21,7 @@
 #include <dirent.h>
 
 #include <libbluray/bluray.h>
+#include <udfread/udfread.h>
 
 #include "mpls_parse.h"
 
@@ -487,9 +488,68 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 	return result;
 }
 
+static int _lsdir(const char *path)
+{
+	int ret = 0;
+	struct udfread_dirent dirent;
+
+	udfread *udf = udfread_init();
+
+	if (!udf) {
+		fprintf(stderr, "[blurayinfo] udfread_init() failed!\n");
+		return 0;
+	}
+
+	if (udfread_open(udf, path) < 0) {
+		fprintf(stderr, "[blurayinfo] udfread_open(%s) failed!\n", path);
+		udfread_close(udf);
+		return 0;
+	}
+
+	UDFDIR *dir = udfread_opendir(udf, path);
+
+	if (!dir) {
+		fprintf(stderr, "[blurayinfo] udfread_opendir(%s) failed!\n", path);
+		udfread_close(udf);
+		return 0;
+	}
+
+	while (udfread_readdir(dir, &dirent)) {
+		if (dirent.d_type == UDF_DT_DIR && !strcmp(dirent.d_name, "BDMV")) {
+			ret = 1;
+			break;
+		}
+	}
+
+	udfread_closedir(dir);
+	udfread_close(udf);
+
+	return ret;
+}
+
+PyObject *_isBluray(PyObject *self, PyObject *args)
+{
+	int ret = 0;
+	char *s;
+
+	if(!PyArg_ParseTuple(args, "s", &s)) {
+		fprintf(stderr, "[blurayinfo] isBluray: wrong arguments!\n");
+		return NULL;
+	}
+
+	if (_lsdir(s)) {
+		ret = 1;
+	}
+
+	return Py_BuildValue("i", ret);
+}
+
 static PyMethodDef blurayinfo_funcs[] = {
-	{"getTitles", _getTitles, METH_VARARGS},
-	{NULL, NULL}
+	{"getTitles", _getTitles, METH_VARARGS,
+		"Return bluray disc title info"},
+	{"isBluray", _isBluray, METH_VARARGS,
+		"Check if folder structure is as in bluray disc"},
+	{NULL, NULL, 0, NULL}
 };
 
 void initblurayinfo(void)
