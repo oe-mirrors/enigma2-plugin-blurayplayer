@@ -12,6 +12,7 @@ from Components.Sources.StaticText import StaticText
 from Screens.InfoBar import InfoBar, MoviePlayer
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
+from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
 from . import _
@@ -131,7 +132,42 @@ class BlurayMain(Screen):
 		self['thumbnail'] = Pixmap()
 		self.Timer = eTimer()
 		self.Timer.timeout.callback.append(self.enableCloseScreen)
+		self.Console = Console()
+		self.onLayoutFinish.append(self.LayoutFinish)
 
+	def LayoutFinish(self):
+		if self.res[-4:].lower() != '.iso':
+			self.OpenDisc()
+		else:
+			iso_path = self.res.replace(' ', '\ ')
+			self.res = '/media/Bluray_%s' % os.path.splitext(
+					iso_path.replace('\ ', ''))[0].rsplit('/', 1)[1]
+			if os.path.exists(self.res):
+				self.Console.ePopen('umount -f %s' % self.res)
+			else:
+				try:
+					os.mkdir(self.res)
+				except Exception as e:
+					print '[BlurayPlayer] Cannot create', self.res, e
+			self.Console.ePopen('mount -r %s -t udf %s' % (iso_path, self.res),
+					self.mountIsoCallback, 0)
+
+	def mountIsoCallback(self, result, retval, extra_args):
+		remount = extra_args
+		if remount != 0:
+			del self.remountTimer
+		if os.path.isdir(os.path.join(self.res, 'BDMV/STREAM/')):
+			self.OpenDisc()
+		elif remount < 5:
+			remount += 1
+			self.remountTimer = eTimer()
+			self.remountTimer.timeout.callback.append(boundFunction(
+					self.mountIsoCallback, None, None, remount))
+			self.remountTimer.start(1000, False)
+		else:
+			self.Exit()
+
+	def OpenDisc(self):
 		content = []
 		x = 1
 		try:
@@ -147,9 +183,7 @@ class BlurayMain(Screen):
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
 			content.append((_('Error in reading titles...'), [None], None, None))
 		self['list'].setList(content)
-		self.onLayoutFinish.append(self.LayoutFinish)
 
-	def LayoutFinish(self):
 		thumbnail = None
 		path = os.path.join(self.res, 'BDMV/META/DL/')
 		if os.path.exists(path):
