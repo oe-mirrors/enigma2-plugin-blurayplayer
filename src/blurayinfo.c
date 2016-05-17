@@ -384,7 +384,7 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 	qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
 
 	/* Parse playlists */
-	for (jj = 0; dirlist[jj] != NULL; jj++) {
+	for (jj = 0; dirlist[jj] != NULL && pl_ii < 1000; jj++) {
 		char *name = NULL;
 		name = _mk_path(path, dirlist[jj]);
 		free(dirlist[jj]);
@@ -408,6 +408,11 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 			pl_ii++;
 		}
 	}
+
+	if (pl_ii >= 999) {
+		fprintf(stderr, "[blurayinfo] Too many play lists given. Output is truncated.");
+	}
+
 	free(dirlist);
 	free(path);
 	closedir(dir);
