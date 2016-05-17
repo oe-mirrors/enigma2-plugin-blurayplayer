@@ -5,7 +5,7 @@ import setup_translate
 plugin = 'Extensions.BlurayPlayer'
 
 module = Extension(plugin + '.blurayinfo',
-		libraries=['bluray'],
+		libraries=['bluray', 'udfread'],
 		sources=['src/blurayinfo.c']
 	)
 
