@@ -494,11 +494,31 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 	return result;
 }
 
-static int _lsdir(const char *path)
+static int _lsdir(udfread *udf, const char *path, const char *dirname)
 {
 	int ret = 0;
 	struct udfread_dirent dirent;
+	UDFDIR *dir = udfread_opendir(udf, path);
 
+	if (!dir) {
+		fprintf(stderr, "[blurayinfo] udfread_opendir(%s) failed!\n", path);
+		return 0;
+	}
+
+	while (udfread_readdir(dir, &dirent)) {
+		if (dirent.d_type == UDF_DT_DIR && !strcmp(dirent.d_name, dirname)) {
+			ret = 1;
+			break;
+		}
+	}
+
+	udfread_closedir(dir);
+	return ret;
+}
+
+static int blurayDir(const char *path)
+{
+	int ret = 0;
 	udfread *udf = udfread_init();
 
 	if (!udf) {
@@ -512,24 +532,11 @@ static int _lsdir(const char *path)
 		return 0;
 	}
 
-	UDFDIR *dir = udfread_opendir(udf, path);
-
-	if (!dir) {
-		fprintf(stderr, "[blurayinfo] udfread_opendir(%s) failed!\n", path);
-		udfread_close(udf);
-		return 0;
+	if (_lsdir(udf, "/", "BDMV") && _lsdir(udf, "BDMV/", "PLAYLIST")) {
+		ret = 1;
 	}
 
-	while (udfread_readdir(dir, &dirent)) {
-		if (dirent.d_type == UDF_DT_DIR && !strcmp(dirent.d_name, "BDMV")) {
-			ret = 1;
-			break;
-		}
-	}
-
-	udfread_closedir(dir);
 	udfread_close(udf);
-
 	return ret;
 }
 
@@ -543,7 +550,7 @@ PyObject *_isBluray(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	if (_lsdir(s)) {
+	if (blurayDir(s)) {
 		ret = 1;
 	}
 
