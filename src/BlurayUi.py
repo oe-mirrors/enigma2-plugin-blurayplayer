@@ -104,6 +104,7 @@ class BlurayMain(Screen):
 		self.session = session
 		self.res = res
 		self.name = ''
+		self.playnext = 0
 		self.closeScreen = False
 		self['key_red'] = StaticText(_('Exit'))
 		self['key_green'] = StaticText(_('Ok'))
@@ -126,10 +127,10 @@ class BlurayMain(Screen):
 			for title in blurayinfo.getTitles(self.res):
 				title_entry = _('%d. Duration %d:%02d minutes') % \
 						(x, title[0] / (45000 * 60), (title[0] / 45000) % 60)
-				playfile = os.path.join(self.res, 'BDMV/STREAM/', title[1] + '.m2ts')
+				playfiles = title[1][1:].split('/')
 				languages = title[2][1:].split('/')
 				codecs = title[3][1:].split('/')
-				content.append((title_entry, playfile, languages, codecs))
+				content.append((title_entry, playfiles, languages, codecs))
 				x += 1
 		except Exception as e:
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
@@ -185,9 +186,13 @@ class BlurayMain(Screen):
 
 	def Ok(self):
 		current = self['list'].getCurrent()
-		if current and current[1]:
-			ref = eServiceReference(3, 0, current[1])
-			ref.setName('%s - %s' % (self.name, current[1][-10:]))
+		if current and current[1][self.playnext]:
+			ref = eServiceReference(3, 0, os.path.join(self.res, 'BDMV/STREAM/',
+					current[1][self.playnext] + '.m2ts'))
+			ref.setName('%s - %s' % (self.name, current[1][self.playnext][-10:]))
+			self.playnext += 1
+			if len(current[1]) == self.playnext:
+				self.playnext = 0
 			self.Timer.start(20000, True)
 			self.session.openWithCallback(self.MoviePlayerCallback,
 					BlurayPlayer, service=ref, languages=current[2], codecs=current[3])
@@ -196,6 +201,10 @@ class BlurayMain(Screen):
 		self.closeScreen = True
 
 	def MoviePlayerCallback(self, how):
+		if how == 'quit' and self.playnext > 0:
+			self.Ok()
+		else:
+			self.playnext = 0
 		if how == 'loop' and self['list'].getIndex() < self['list'].count() - 1:
 			self['list'].selectNext()
 			self.Ok()
