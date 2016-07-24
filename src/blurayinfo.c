@@ -323,9 +323,10 @@ static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 
 	tList[pos].duration = _pl_duration(pl);
 	for (ii = 0; ii < pl->list_count; ii++) {
+		char *clip = NULL;
 		MPLS_PI *pi = &pl->play_item[ii];
-		strcpy(tList[pos].clip_id, pi->clip[0].clip_id);
-		//printf("%s.m2ts\n", pi->clip[0].clip_id);
+		clip = _mk_path(tList[pos].clip_id, pi->clip[0].clip_id);
+		strcpy(tList[pos].clip_id, clip);
 
 		for (jj = 0; jj < pi->stn.num_audio; jj++) {
 			char *lang = NULL, *coding = NULL;
@@ -337,6 +338,7 @@ static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 			strcpy(tList[pos].coding_type, coding);
 			free(coding);
 		}
+		//printf("%s.m2ts\n", tList[pos].clip_id);
 		//printf("%s\n", tList[pos].languages);
 		//printf("%s\n", tList[pos].coding_type);
 	}
