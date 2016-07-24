@@ -328,6 +328,7 @@ static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 		MPLS_PI *pi = &pl->play_item[ii];
 		clip = _mk_path(tList[pos].clip_id, pi->clip[0].clip_id);
 		strcpy(tList[pos].clip_id, clip);
+		free(clip);
 
 		/* Get an audio track info from the first clip */
 		if (ii == 0) {
