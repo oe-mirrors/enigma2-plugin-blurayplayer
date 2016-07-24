@@ -186,7 +186,7 @@ class BlurayMain(Screen):
 				x += 1
 		except Exception as e:
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
-			content.append((_('Error in reading titles...'), None, None, None))
+			content.append((_('Error in reading titles...'), [None], None, None))
 		self['list'].setList(content)
 
 		thumbnail = None
