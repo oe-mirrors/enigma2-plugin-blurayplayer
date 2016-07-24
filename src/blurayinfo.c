@@ -328,15 +328,18 @@ static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 		clip = _mk_path(tList[pos].clip_id, pi->clip[0].clip_id);
 		strcpy(tList[pos].clip_id, clip);
 
-		for (jj = 0; jj < pi->stn.num_audio; jj++) {
-			char *lang = NULL, *coding = NULL;
-			lang = _mk_path(tList[pos].languages, pi->stn.audio[jj].lang);
-			strcpy(tList[pos].languages, lang);
-			free(lang);
+		/* Get an audio track info from the first clip */
+		if (ii == 0) {
+			for (jj = 0; jj < pi->stn.num_audio; jj++) {
+				char *lang = NULL, *coding = NULL;
+				lang = _mk_path(tList[pos].languages, pi->stn.audio[jj].lang);
+				strcpy(tList[pos].languages, lang);
+				free(lang);
 
-			coding = _mk_path(tList[pos].coding_type, _lookup_str(codec_map, pi->stn.audio[jj].coding_type));
-			strcpy(tList[pos].coding_type, coding);
-			free(coding);
+				coding = _mk_path(tList[pos].coding_type, _lookup_str(codec_map, pi->stn.audio[jj].coding_type));
+				strcpy(tList[pos].coding_type, coding);
+				free(coding);
+			}
 		}
 		//printf("%s.m2ts\n", tList[pos].clip_id);
 		//printf("%s\n", tList[pos].languages);
