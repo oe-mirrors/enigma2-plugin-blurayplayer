@@ -3,6 +3,7 @@ import os
 from enigma import ePicLoad, eServiceReference, eTimer, getDesktop
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
+from Components.config import config
 from Components.Console import Console
 from Components.Label import Label
 from Components.Pixmap import Pixmap
@@ -19,12 +20,13 @@ import blurayinfo
 
 
 class BlurayPlayer(MoviePlayer):
-	def __init__(self, session, service, languages, codecs):
+	def __init__(self, session, service, languages, codecs, playnext):
 		MoviePlayer.__init__(self, session, service)
 		self.skinName = ['BlurayPlayer', 'MoviePlayer']
 		self.servicelist = InfoBar.instance and InfoBar.instance.servicelist
 		self.languages = languages
 		self.codecs = codecs
+		self.playnext = playnext
 
 	def handleLeave(self, how):
 		if how == 'ask':
@@ -36,6 +38,20 @@ class BlurayPlayer(MoviePlayer):
 	def leavePlayerConfirmed(self, answer):
 		if answer:
 			self.close(answer)
+
+	def doEofInternal(self, playing):
+		if not self.execing:
+			return
+		if not playing:
+			return
+		if self.playnext > 0:
+			self.close('playnext')
+		else:
+			ref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
+			if ref:
+				from Screens.InfoBarGenerics import delResumePoint
+				delResumePoint(ref)
+			self.handleLeave(config.usage.on_movie_eof.value)
 
 	def showMovies(self):
 		pass
@@ -229,26 +245,27 @@ class BlurayMain(Screen):
 				self.playnext = 0
 			self.Timer.start(20000, True)
 			self.session.openWithCallback(self.MoviePlayerCallback,
-					BlurayPlayer, service=ref, languages=current[2], codecs=current[3])
+					BlurayPlayer, service=ref, languages=current[2],
+					codecs=current[3], playnext=self.playnext)
 
 	def enableCloseScreen(self):
 		self.closeScreen = True
 
 	def MoviePlayerCallback(self, how):
-		if how == 'quit' and self.playnext > 0:
+		if how == 'playnext':
 			self.Ok()
 		else:
 			self.playnext = 0
-		if how == 'loop' and self['list'].getIndex() < self['list'].count() - 1:
-			self['list'].selectNext()
-			self.Ok()
-		elif how == 'repeatcurrent':
-			self.Ok()
-		else:
-			if self.closeScreen:
-				self.Exit()
+			if how == 'loop' and self['list'].getIndex() < self['list'].count() - 1:
+				self['list'].selectNext()
+				self.Ok()
+			elif how == 'repeatcurrent':
+				self.Ok()
 			else:
-				self.Timer.stop()
+				if self.closeScreen:
+					self.Exit()
+				else:
+					self.Timer.stop()
 
 	def Exit(self):
 		if '/media/Bluray_' in self.res:
