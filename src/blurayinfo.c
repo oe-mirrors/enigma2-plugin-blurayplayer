@@ -78,10 +78,11 @@ static char *_mk_path(const char *base, const char *sub)
 	size_t n1 = strlen(base);
 	size_t n2 = strlen(sub);
 	char *result = (char*)malloc(n1 + n2 + 2);
-	strcpy(result, base);
-	strcat(result, "/");
-	strcat(result, sub);
-
+	if (result) {
+		strcpy(result, base);
+		strcat(result, "/");
+		strcat(result, sub);
+	}
 	return result;
 }
 
@@ -327,6 +328,9 @@ static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 		char *clip = NULL;
 		MPLS_PI *pi = &pl->play_item[ii];
 		clip = _mk_path(tList[pos].clip_id, pi->clip[0].clip_id);
+		if (clip == NULL) {
+			continue;
+		}
 		strcpy(tList[pos].clip_id, clip);
 		free(clip);
 
@@ -335,10 +339,16 @@ static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 			for (jj = 0; jj < pi->stn.num_audio; jj++) {
 				char *lang = NULL, *coding = NULL;
 				lang = _mk_path(tList[pos].languages, pi->stn.audio[jj].lang);
+				if (lang == NULL) {
+					continue;
+				}
 				strcpy(tList[pos].languages, lang);
 				free(lang);
 
 				coding = _mk_path(tList[pos].coding_type, _lookup_str(codec_map, pi->stn.audio[jj].coding_type));
+				if (coding == NULL) {
+					 continue;
+				}
 				strcpy(tList[pos].coding_type, coding);
 				free(coding);
 			}
@@ -376,6 +386,13 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 
 	/* Open and sort playlists */
 	char **dirlist = (char**)calloc(10001, sizeof(char*));
+	if (!dirlist) {
+		fprintf(stderr, "[blurayinfo] Alloc dirlist failed\n");
+		free(path);
+		closedir(dir);
+		dir = NULL;
+		return 0;
+	}
 	struct dirent *ent;
 	int jj = 0;
 	for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
@@ -388,6 +405,9 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 		char *name = NULL;
 		name = _mk_path(path, dirlist[jj]);
 		free(dirlist[jj]);
+		if (name == NULL) {
+			continue;
+		}
 		if (stat(name, &st)) {
 			free(name);
 			continue;
