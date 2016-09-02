@@ -392,7 +392,10 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 	struct dirent *ent;
 	int jj = 0;
 	for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
-		dirlist[jj++] = strcpy((char*)malloc(strlen(ent->d_name)), ent->d_name);
+		char *s = (char*)malloc(strlen(ent->d_name) + 1);
+		if (s) {
+			dirlist[jj++] = strcpy(s, ent->d_name);
+		}
 	}
 	qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
 
