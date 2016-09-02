@@ -365,7 +365,7 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 {
 	//printf("Directory: %s:\n", bd_path);
 	MPLS_PL *pl;
-	int ii, ti = 1, pl_ii = 0, main_ii = 0;
+	int ii, ti = 1, pl_ii = 0, main_ii = 0, ret = 0;
 	MPLS_PL *pl_list[1000];
 	struct stat st;
 	char *path = NULL;
@@ -375,23 +375,19 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 	path = _mk_path(bd_path, "/BDMV/PLAYLIST");
 	if (path == NULL) {
 		fprintf(stderr, "[blurayinfo] Failed to find playlist path: %s\n", bd_path);
-		return 0;
+		return ret;
 	}
 	dir = opendir(path);
 	if (dir == NULL) {
 		fprintf(stderr, "[blurayinfo] Failed to open dir: %s\n", path);
-		free(path);
-		return 0;
+		goto dir_fail;
 	}
 
 	/* Open and sort playlists */
 	char **dirlist = (char**)calloc(10001, sizeof(char*));
 	if (!dirlist) {
 		fprintf(stderr, "[blurayinfo] Alloc dirlist failed\n");
-		free(path);
-		closedir(dir);
-		dir = NULL;
-		return 0;
+		goto dirlist_fail;
 	}
 	struct dirent *ent;
 	int jj = 0;
@@ -433,11 +429,6 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 		fprintf(stderr, "[blurayinfo] Too many play lists given. Output is truncated.");
 	}
 
-	free(dirlist);
-	free(path);
-	closedir(dir);
-	dir = NULL;
-
 	/* Store and clean usable playlists */
 	for (ii = 0; ii < pl_ii; ii++) {
 		//printf("%d -- Duration: %4u:%02u ", ii, _pl_duration(pl_list[ii]) / (45000 * 60), (_pl_duration(pl_list[ii]) / 45000) % 60);
@@ -451,7 +442,14 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 		bd_free_mpls(pl_list[ii]);
 	}
 
-	return 1;
+	ret = 1;
+	free(dirlist);
+dirlist_fail:
+	closedir(dir);
+	dir = NULL;
+dir_fail:
+	free(path);
+	return ret;
 }
 
 titlelist *newTitleList(void)
