@@ -1,0 +1,80 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-10-08 10:07+0200\n"
+"PO-Revision-Date: 2016-10-08 10:09+0200\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.9\n"
+"Last-Translator: Rob van der Does <RobvanderDoes@Gmail.com>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: nl\n"
+
+#: BlurayUi.py:127
+#, python-format
+msgid "%d. Duration %d:%02d minutes"
+msgstr "%d. Duur %d:%02d minuten"
+
+#: BlurayAudioSelection.py:116
+msgid "Audio plugins"
+msgstr "Audio plugins"
+
+#: BlurayUi.py:103 plugin.py:20
+msgid "Blu-ray player"
+msgstr "Blu-ray player"
+
+#: BlurayAudioSelection.py:46
+msgid "Channel"
+msgstr "Kanaal"
+
+#: BlurayUi.py:136
+msgid "Error in reading titles..."
+msgstr "Fout bij lezen titels..."
+
+#: BlurayUi.py:108 BlurayPlayerDirBrowser.py:19
+msgid "Exit"
+msgstr "Afsluiten"
+
+#: BlurayAudioSelection.py:35
+msgid "Multi channel downmix"
+msgstr "Multi channel downmix"
+
+#: BlurayUi.py:109 BlurayPlayerDirBrowser.py:20
+msgid "Ok"
+msgstr "OK"
+
+#: BlurayPlayerDirBrowser.py:34
+msgid "Please select the blu-ray disc"
+msgstr "Kies de blue ray schijf"
+
+#: BlurayAudioSelection.py:27
+msgid "Select audio track"
+msgstr "Kies audio-track"
+
+#: BlurayUi.py:31
+msgid "Stop playing this movie?"
+msgstr "Stoppen met afspelen van deze film?"
+
+#: plugin.py:21
+msgid "Watch blu-ray discs in folder or iso"
+msgstr "Bekijk blue-ray schijven in map of als ISO"
+
+#: BlurayAudioSelection.py:42
+msgid "left"
+msgstr "links"
+
+#: BlurayAudioSelection.py:42
+msgid "right"
+msgstr "rechts"
+
+#: BlurayAudioSelection.py:42
+msgid "stereo"
+msgstr "stereo"
