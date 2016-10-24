@@ -127,8 +127,8 @@ class BlurayMain(Screen):
 		self['key_green'] = StaticText(_('Ok'))
 		self['actions'] = ActionMap(['OkCancelActions', 'ColorActions'],
 				{
-					'cancel': self.Exit,
-					'red': self.Exit,
+					'cancel': self.close,
+					'red': self.close,
 					'ok': self.Ok,
 					'green': self.Ok,
 				})
@@ -141,38 +141,6 @@ class BlurayMain(Screen):
 		self.onLayoutFinish.append(self.LayoutFinish)
 
 	def LayoutFinish(self):
-		if self.res[-4:].lower() != '.iso':
-			self.OpenDisc()
-		else:
-			iso_path = self.res.replace(' ', '\ ')
-			self.res = '/media/Bluray_%s' % os.path.splitext(
-					iso_path.replace('\ ', ''))[0].rsplit('/', 1)[1]
-			if os.path.exists(self.res):
-				self.Console.ePopen('umount -f %s' % self.res)
-			else:
-				try:
-					os.mkdir(self.res)
-				except Exception as e:
-					print '[BlurayPlayer] Cannot create', self.res, e
-			self.Console.ePopen('mount -r %s -t udf %s' % (iso_path, self.res),
-					self.mountIsoCallback, 0)
-
-	def mountIsoCallback(self, result, retval, extra_args):
-		remount = extra_args
-		if remount != 0:
-			del self.remountTimer
-		if os.path.isdir(os.path.join(self.res, 'BDMV/STREAM/')):
-			self.OpenDisc()
-		elif remount < 5:
-			remount += 1
-			self.remountTimer = eTimer()
-			self.remountTimer.timeout.callback.append(boundFunction(
-					self.mountIsoCallback, None, None, remount))
-			self.remountTimer.start(1000, False)
-		else:
-			self.Exit()
-
-	def OpenDisc(self):
 		content = []
 		x = 1
 		try:
@@ -190,22 +158,23 @@ class BlurayMain(Screen):
 		self['list'].setList(content)
 
 		thumbnail = None
-		path = os.path.join(self.res, 'BDMV/META/DL/')
-		if os.path.exists(path):
-			fileSize = 1000000
-			for x in os.listdir(path):
-				dlFile = os.path.join(path, x)
-				if dlFile[-4:] == '.xml':
-					try:
-						self.name = open(dlFile).read()\
-								.split('<di:name>')[1].split('</di:name>')[0]
-					except:
-						pass
-				elif dlFile[-4:] == '.jpg':
-					size = os.stat(dlFile).st_size
-					if size > 0 and size < fileSize:
-						fileSize = size
-						thumbnail = dlFile
+		if self.res[-4:].lower() != '.iso':
+			path = os.path.join(self.res, 'BDMV/META/DL/')
+			if os.path.exists(path):
+				fileSize = 1000000
+				for x in os.listdir(path):
+					dlFile = os.path.join(path, x)
+					if dlFile[-4:] == '.xml':
+						try:
+							self.name = open(dlFile).read()\
+									.split('<di:name>')[1].split('</di:name>')[0]
+						except:
+							pass
+					elif dlFile[-4:] == '.jpg':
+						size = os.stat(dlFile).st_size
+						if size > 0 and size < fileSize:
+							fileSize = size
+							thumbnail = dlFile
 
 		if not self.name:
 			if self.res[-1:] == '/':
@@ -263,19 +232,6 @@ class BlurayMain(Screen):
 				self.Ok()
 			else:
 				if self.closeScreen:
-					self.Exit()
+					self.close()
 				else:
 					self.Timer.stop()
-
-	def Exit(self):
-		if '/media/Bluray_' in self.res:
-			Console().ePopen('umount -f %s' % self.res, self.umountIsoCallback)
-		else:
-			self.close()
-
-	def umountIsoCallback(self, result, retval, extra_args):
-		try:
-			os.rmdir(self.res)
-		except Exception as e:
-			print '[BlurayPlayer] Cannot remove', self.res, e
-		self.close()
