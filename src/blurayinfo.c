@@ -62,11 +62,9 @@ static const char *_lookup_str(const VALUE_MAP *map, int val)
 {
 	int ii;
 
-	for (ii = 0; map[ii].str; ii++) {
-		if (val == map[ii].value) {
+	for (ii = 0; map[ii].str; ii++)
+		if (val == map[ii].value)
 			return map[ii].str;
-		}
-	}
 
 	return "???";
 }
@@ -129,7 +127,7 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 	int title_count = bd_get_titles(bd, TITLES_RELEVANT, 180);
 	if (title_count == 0) {
 		fprintf(stderr, "[blurayinfo] No usable playlists found!\n");
-		goto titles_fail;
+		goto fail;
 	}
 
 	int main_title = bd_get_main_title(bd);
@@ -145,7 +143,7 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 
 	ret = 1;
 
-titles_fail:
+fail:
 	bd_close(bd);
 	return ret;
 }
@@ -153,9 +151,9 @@ titles_fail:
 titlelist *newTitleList(void)
 {
 	titlelist *tList = malloc(sizeof(titlelist)*40);
-	if(!tList) {
+	if(!tList)
 		exit(0);
-	}
+
 	memset(tList, 0, sizeof(titlelist)*40);
 	return tList;
 }
@@ -177,12 +175,11 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	if(!(plist = PyList_New(0))) {
+	if(!(plist = PyList_New(0)))
 		return NULL;
-	}
-	if(!(result = PyList_New(0))) {
+
+	if(!(result = PyList_New(0)))
 		return NULL;
-	}
 
 	tList = newTitleList();
 	if(!parseInfo(s, tList)) {
@@ -191,9 +188,8 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 	}
 
 	for (i=0; i<1000; i++) {
-		if(tList[i].clip_id[0] == '\0') {
+		if(tList[i].clip_id[0] == '\0')
 			break;
-		}
 		else {
 			duration = Py_BuildValue("k", (unsigned long)tList[i].duration);
 			clip_id = Py_BuildValue("s", tList[i].clip_id);
@@ -253,9 +249,8 @@ static int blurayDir(const char *path)
 		return 0;
 	}
 
-	if (_lsdir(udf, "/", "BDMV") && _lsdir(udf, "BDMV/", "PLAYLIST")) {
+	if (_lsdir(udf, "/", "BDMV") && _lsdir(udf, "BDMV/", "PLAYLIST"))
 		ret = 1;
-	}
 
 	udfread_close(udf);
 	return ret;
@@ -271,9 +266,8 @@ PyObject *_isBluray(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	if (blurayDir(s)) {
+	if (blurayDir(s))
 		ret = 1;
-	}
 
 	return Py_BuildValue("i", ret);
 }
