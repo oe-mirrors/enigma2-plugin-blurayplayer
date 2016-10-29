@@ -28,6 +28,7 @@ typedef struct {
 	char clip_id[128];
 	char languages[256];
 	char coding_type[512];
+	uint32_t chapters;
 } titlelist;
 
 typedef struct {
@@ -112,6 +113,8 @@ static int storeInfo(BLURAY_TITLE_INFO* ti, titlelist *tList, int pos)
 		free(coding);
 	}
 
+	tList[pos].chapters= ti->chapter_count;
+
 	return 0;
 }
 
@@ -168,7 +171,7 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 	titlelist *tList;
 	int i;
 	char *s;
-	PyObject *plist, *result, *duration, *clip_id, *languages, *coding_type;
+	PyObject *plist, *result, *duration, *clip_id, *languages, *coding_type, *chapters;
 
 	if(!PyArg_ParseTuple(args, "s", &s)) {
 		fprintf(stderr, "[blurayinfo] getTitles: wrong arguments!\n");
@@ -195,10 +198,12 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 			clip_id = Py_BuildValue("s", tList[i].clip_id);
 			languages = Py_BuildValue("s", tList[i].languages);
 			coding_type = Py_BuildValue("s", tList[i].coding_type);
+			chapters = Py_BuildValue("i", tList[i].chapters);
 			PyList_Append(plist, duration);
 			PyList_Append(plist, clip_id);
 			PyList_Append(plist, languages);
 			PyList_Append(plist, coding_type);
+			PyList_Append(plist, chapters);
 			PyList_Append(result, plist);
 			if(!(plist = PyList_New(0))) {
 				freeTitleList(tList);

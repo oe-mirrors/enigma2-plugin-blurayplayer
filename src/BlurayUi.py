@@ -145,16 +145,17 @@ class BlurayMain(Screen):
 		x = 1
 		try:
 			for title in blurayinfo.getTitles(self.res):
-				title_entry = _('%d. Duration %d:%02d minutes') % \
-						(x, title[0] / (45000 * 60), (title[0] / 45000) % 60)
+				title_entry = _('%d. Duration %d:%02d:%02d %d chapters') % \
+						(x, title[0] / 45000 / 3600, title[0] / 45000 % 3600 / 60,
+						title[0] / 45000 % 60, title[4])
 				playfiles = title[1][1:].split('/')
 				languages = title[2][1:].split('/')
 				codecs = title[3][1:].split('/')
-				content.append((title_entry, playfiles, languages, codecs))
+				content.append((title_entry, playfiles, languages, codecs, title[4]))
 				x += 1
 		except Exception as e:
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
-			content.append((_('Error in reading titles...'), [None], None, None))
+			content.append((_('Error in reading titles...'), [None], None, None, 0))
 		self['list'].setList(content)
 
 		thumbnail = None
