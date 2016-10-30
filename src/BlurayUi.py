@@ -20,14 +20,33 @@ import blurayinfo
 
 
 class BlurayPlayer(MoviePlayer):
-	def __init__(self, session, service, languages, codecs):
+	def __init__(self, session, service, cur, playnext):
 		MoviePlayer.__init__(self, session, service)
 		self.skinName = ['BlurayPlayer', 'MoviePlayer']
 		self.servicelist = InfoBar.instance and InfoBar.instance.servicelist
-		self.languages = languages
-		self.codecs = codecs
+		self.cur = cur
+		self.playnext = playnext
+		self.chapters = []
+		self.onLayoutFinish.append(self.LayoutFinish)
+
+	def LayoutFinish(self):
+		service = self.session.nav.getCurrentService()
+		if service is not None and self.cur[4] > 2:
+			try:
+				for chapter in blurayinfo.getChapters(self.cur[6], self.cur[5], self.playnext):
+					self.chapters.append(long(chapter))
+					self.addMark((long(chapter), self.CUT_TYPE_MARK))
+			except Exception as e:
+				print '[BlurayPlayer] error in add chapters', e
 
 	def handleLeave(self, how):
+		if len(self.chapters):
+			for chapter in self.chapters:
+				try:
+					self.removeMark((chapter, self.CUT_TYPE_MARK))
+				except:
+					pass
+			self.chapters = []
 		if how == 'ask':
 			self.session.openWithCallback(self.leavePlayerConfirmed,
 					MessageBox, _('Stop playing this movie?'))
@@ -44,7 +63,7 @@ class BlurayPlayer(MoviePlayer):
 		if not playing:
 			return
 		if self.playnext > 0:
-			self.close('playnext')
+			self.handleLeave('playnext')
 		else:
 			self.handleLeave(config.usage.on_movie_eof.value)
 
@@ -54,7 +73,7 @@ class BlurayPlayer(MoviePlayer):
 	def audioSelection(self):
 		from BlurayAudioSelection import BlurayAudioSelection
 		self.session.open(BlurayAudioSelection, infobar=self,
-				languages=self.languages, codecs=self.codecs)
+				languages=self.cur[2], codecs=self.cur[3])
 
 
 class BlurayMain(Screen):
@@ -178,11 +197,11 @@ class BlurayMain(Screen):
 				playfiles = title[1][1:].split('/')
 				languages = title[2][1:].split('/')
 				codecs = title[3][1:].split('/')
-				content.append((title_entry, playfiles, languages, codecs, title[4]))
+				content.append((title_entry, playfiles, languages, codecs, title[4], title[5]))
 				x += 1
 		except Exception as e:
 			print '[BlurayPlayer] blurayinfo.getTitles:', e
-			content.append((_('Error in reading titles...'), [None], None, None, 0))
+			content.append((_('Error in reading titles...'), [None], None, None, 0, 0))
 		self['list'].setList(content)
 
 		thumbnail = None
@@ -240,8 +259,10 @@ class BlurayMain(Screen):
 			if len(current[1]) == self.playnext:
 				self.playnext = 0
 			self.Timer.start(20000, True)
+			current += (self.res,)
 			self.session.openWithCallback(self.MoviePlayerCallback,
-					BlurayPlayer, service=ref, languages=current[2], codecs=current[3])
+					BlurayPlayer, service=ref,
+					cur=current, playnext=self.playnext)
 
 	def enableCloseScreen(self):
 		self.closeScreen = True
