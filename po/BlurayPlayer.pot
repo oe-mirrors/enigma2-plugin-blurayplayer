@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-10 01:18+0200\n"
+"POT-Creation-Date: 2016-10-30 23:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,63 +17,55 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: BlurayUi.py:127
+#: BlurayUi.py:166
 #, python-format
-msgid "%d. Duration %d:%02d minutes"
+msgid "%d. Duration %d:%02d:%02d %d chapters"
 msgstr ""
 
-#: BlurayAudioSelection.py:116
+#: BlurayAudioSelection.py:117
 msgid "Audio plugins"
 msgstr ""
 
-#: BlurayUi.py:103 plugin.py:20
+#: BlurayUi.py:138
 msgid "Blu-ray player"
 msgstr ""
 
-#: BlurayAudioSelection.py:46
+#: BlurayAudioSelection.py:47
 msgid "Channel"
 msgstr ""
 
-#: BlurayUi.py:136
+#: BlurayUi.py:176
 msgid "Error in reading titles..."
 msgstr ""
 
-#: BlurayUi.py:108 BlurayPlayerDirBrowser.py:19
+#: BlurayUi.py:144
 msgid "Exit"
 msgstr ""
 
-#: BlurayAudioSelection.py:35
+#: BlurayAudioSelection.py:36
 msgid "Multi channel downmix"
 msgstr ""
 
-#: BlurayUi.py:109 BlurayPlayerDirBrowser.py:20
+#: BlurayUi.py:145
 msgid "Ok"
 msgstr ""
 
-#: BlurayPlayerDirBrowser.py:34
-msgid "Please select the blu-ray disc"
-msgstr ""
-
-#: BlurayAudioSelection.py:27
+#: BlurayAudioSelection.py:28
 msgid "Select audio track"
 msgstr ""
 
-#: BlurayUi.py:31
+#: BlurayUi.py:52
 msgid "Stop playing this movie?"
 msgstr ""
 
-#: plugin.py:21
-msgid "Watch blu-ray discs in folder or iso"
-msgstr ""
-
-#: BlurayAudioSelection.py:42
+#: BlurayAudioSelection.py:43
 msgid "left"
 msgstr ""
 
-#: BlurayAudioSelection.py:42
+#: BlurayAudioSelection.py:43
 msgid "right"
 msgstr ""
 
-#: BlurayAudioSelection.py:42
+#: BlurayAudioSelection.py:43
 msgid "stereo"
 msgstr ""
