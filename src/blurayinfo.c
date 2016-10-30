@@ -244,9 +244,9 @@ static int parseChapters(const char *bd_path, titlelist *tList, int title_id, in
 			start_time += end_time;
 		end_time += ti->clips[ii].out_time - ti->clips[ii].in_time;
 	}
-	for (ii = 1; ii < ti->chapter_count; ii++) {
+	for (ii = 0; ii < ti->chapter_count; ii++) {
 		uint64_t chaper_time = ti->chapters[ii].start;
-		if (chaper_time > start_time && chaper_time < end_time)
+		if (chaper_time > start_time && chaper_time <= end_time)
 			tList[pos++].duration = chaper_time;
 	}
 	tList[pos].duration = -1;
@@ -282,10 +282,8 @@ PyObject *_getChapters(PyObject *self, PyObject *args)
 	for (i = 0; i < 1000; i++) {
 		if(tList[i].duration == -1)
 			break;
-		else {
-			duration = Py_BuildValue("k", (unsigned long)tList[i].duration);
-			PyList_Append(result, duration);
-		}
+		duration = Py_BuildValue("k", (unsigned long)tList[i].duration);
+		PyList_Append(result, duration);
 	}
 
 	freeTitleList(tList);
