@@ -29,6 +29,7 @@ typedef struct {
 	char languages[256];
 	char coding_type[512];
 	uint32_t chapters;
+	int title_id;
 } titlelist;
 
 typedef struct {
@@ -113,7 +114,8 @@ static int storeInfo(BLURAY_TITLE_INFO* ti, titlelist *tList, int pos)
 		free(coding);
 	}
 
-	tList[pos].chapters= ti->chapter_count;
+	tList[pos].chapters = ti->chapter_count;
+	tList[pos].title_id = pos;
 
 	return 0;
 }
@@ -127,6 +129,7 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 		fprintf(stderr, "[blurayinfo] Failed to open:%s\n", bd_path);
 		return ret;
 	}
+
 	int title_count = bd_get_titles(bd, TITLES_RELEVANT, 180);
 	if (title_count == 0) {
 		fprintf(stderr, "[blurayinfo] No usable playlists found!\n");
@@ -171,7 +174,7 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 	titlelist *tList;
 	int i;
 	char *s;
-	PyObject *plist, *result, *duration, *clip_id, *languages, *coding_type, *chapters;
+	PyObject *plist, *result, *duration, *clip_id, *languages, *coding_type, *chapters, *title_id;
 
 	if(!PyArg_ParseTuple(args, "s", &s)) {
 		fprintf(stderr, "[blurayinfo] getTitles: wrong arguments!\n");
@@ -190,7 +193,7 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	for (i=0; i<1000; i++) {
+	for (i = 0; i < 1000; i++) {
 		if(tList[i].clip_id[0] == '\0')
 			break;
 		else {
@@ -199,16 +202,89 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 			languages = Py_BuildValue("s", tList[i].languages);
 			coding_type = Py_BuildValue("s", tList[i].coding_type);
 			chapters = Py_BuildValue("i", tList[i].chapters);
+			title_id = Py_BuildValue("i", tList[i].title_id);
 			PyList_Append(plist, duration);
 			PyList_Append(plist, clip_id);
 			PyList_Append(plist, languages);
 			PyList_Append(plist, coding_type);
 			PyList_Append(plist, chapters);
+			PyList_Append(plist, title_id);
 			PyList_Append(result, plist);
 			if(!(plist = PyList_New(0))) {
 				freeTitleList(tList);
 				return NULL;
 			}
+		}
+	}
+
+	freeTitleList(tList);
+	return result;
+}
+
+static int parseChapters(const char *bd_path, titlelist *tList, int title_id, int clip_id)
+{
+	int ii, ret = 0, pos = 0;
+	uint64_t start_time = 2000000, end_time = 0;
+
+	BLURAY *bd = bd_open(bd_path, NULL);
+	if (!bd) {
+		fprintf(stderr, "[blurayinfo] Failed to open %s\n", bd_path);
+		return 0;
+	}
+
+	int title_count = bd_get_titles(bd, TITLES_RELEVANT, 180);
+	if (title_count == 0) {
+		fprintf(stderr, "[blurayinfo] No usable playlists found!\n");
+		goto fail;
+	}
+
+	BLURAY_TITLE_INFO* ti = bd_get_title_info(bd, title_id, 0);
+	for (ii = 0; ii <= clip_id; ii++) {
+		if (end_time)
+			start_time += end_time;
+		end_time += ti->clips[ii].out_time - ti->clips[ii].in_time;
+	}
+	for (ii = 1; ii < ti->chapter_count; ii++) {
+		uint64_t chaper_time = ti->chapters[ii].start;
+		if (chaper_time > start_time && chaper_time < end_time)
+			tList[pos++].duration = chaper_time;
+	}
+	tList[pos].duration = -1;
+
+	ret = 1;
+
+fail:
+	bd_close(bd);
+	return ret;
+}
+
+PyObject *_getChapters(PyObject *self, PyObject *args)
+{
+	titlelist *tList;
+	int i, c;
+	char *s;
+	PyObject *result, *duration;
+
+	if(!PyArg_ParseTuple(args, "sii", &s, &i, &c)) {
+		fprintf(stderr, "[blurayinfo] getChapters: wrong arguments!\n");
+		return NULL;
+	}
+
+	if(!(result = PyList_New(0)))
+		return NULL;
+
+	tList = newTitleList();
+	if(!parseChapters(s, tList, i, c)) {
+		fprintf(stderr, "[blurayinfo] getChapters: error in parse!\n");
+		return NULL;
+	}
+
+	for (i = 0; i < 1000; i++) {
+		if(tList[i].duration == -1)
+			break;
+		else {
+			duration = Py_BuildValue("k", (unsigned long)tList[i].duration);
+			PyList_Append(result, duration);
 		}
 	}
 
@@ -280,6 +356,8 @@ PyObject *_isBluray(PyObject *self, PyObject *args)
 static PyMethodDef blurayinfo_funcs[] = {
 	{"getTitles", _getTitles, METH_VARARGS,
 		"Return bluray disc title info"},
+	{"getChapters", _getChapters, METH_VARARGS,
+		"Get chapters from title"},
 	{"isBluray", _isBluray, METH_VARARGS,
 		"Check if folder structure is as in bluray disc"},
 	{NULL, NULL, 0, NULL}
