@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma-plugin 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-10 01:18+0200\n"
+"POT-Creation-Date: 2016-10-30 23:42+0200\n"
 "PO-Revision-Date: 2016-03-22 11:27+0100\n"
 "Last-Translator: madieatv <madie1@gmx.de>\n"
 "Language-Team: Taapat <taapat@gmail.com>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #, python-format
-msgid "%d. Duration %d:%02d minutes"
-msgstr "%d. Dauer %d:%02d Minuten"
+msgid "%d. Duration %d:%02d:%02d %d chapters"
+msgstr "%d. Dauer %d:%02d:%02d %d Kapitel"
 
 msgid "Audio plugins"
 msgstr "Audio Einstellungen"
@@ -39,17 +39,11 @@ msgstr "Multi Kanal Downmix"
 msgid "Ok"
 msgstr "OK"
 
-msgid "Please select the blu-ray disc"
-msgstr "Bitte BD auswählen"
-
 msgid "Select audio track"
 msgstr "Bitte Titel auswählen"
 
 msgid "Stop playing this movie?"
 msgstr "Abspielen beenden?"
-
-msgid "Watch blu-ray discs in folder or iso"
-msgstr "BlurayDisc oder BD-iso abspielen"
 
 msgid "left"
 msgstr "links"
