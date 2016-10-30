@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma-plugin 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-10 01:18+0200\n"
+"POT-Creation-Date: 2016-10-30 23:42+0200\n"
 "PO-Revision-Date: 2016-07-23 20:46+0300\n"
 "Last-Translator: vovan43 <vovan43@ex.ua>\n"
 "Language-Team: Taapat <taapat@gmail.com>\n"
@@ -12,11 +12,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Generator: Poedit 1.8.8\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-msgid "%d. Duration %d:%02d minutes"
-msgstr "%d. Тривалість %d:%02d мин."
+#, python-format
+msgid "%d. Duration %d:%02d:%02d %d chapters"
+msgstr "%d. Тривалість %d:%02d:%02d %d глав"
 
 msgid "Audio plugins"
 msgstr "Аудіо плагіни"
@@ -39,17 +39,11 @@ msgstr "Мультиканальне мікшування"
 msgid "Ok"
 msgstr "OK"
 
-msgid "Please select the blu-ray disc"
-msgstr "Виберіть блюрей диск"
-
 msgid "Select audio track"
 msgstr "Вибір аудіо дорожки"
 
 msgid "Stop playing this movie?"
 msgstr "Зупинити відтворення цього відео?"
-
-msgid "Watch blu-ray discs in folder or iso"
-msgstr "Дивіться блюрей диски в папці чи в iso"
 
 msgid "left"
 msgstr "вліво"
