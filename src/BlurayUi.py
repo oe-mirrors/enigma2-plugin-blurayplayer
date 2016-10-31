@@ -1,6 +1,6 @@
 import os
 
-from enigma import ePicLoad, eServiceReference, eTimer, getDesktop
+from enigma import ePicLoad, eServiceCenter, eServiceReference, eTimer, getDesktop
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config
@@ -24,20 +24,33 @@ class BlurayPlayer(MoviePlayer):
 		MoviePlayer.__init__(self, session, service)
 		self.skinName = ['BlurayPlayer', 'MoviePlayer']
 		self.servicelist = InfoBar.instance and InfoBar.instance.servicelist
+		self.service = service
 		self.cur = cur
 		self.playnext = playnext
 		self.chapters = []
 		self.onLayoutFinish.append(self.LayoutFinish)
 
 	def LayoutFinish(self):
-		service = self.session.nav.getCurrentService()
-		if service is not None and self.cur[4] > 2:
+		curservice = self.session.nav.getCurrentService()
+		if curservice is not None and self.cur[4] > 2:
+			info = eServiceCenter.getInstance().info(self.service)
+			length = info.getLength(self.service) * 90000
+			chapters = []
 			try:
-				for chapter in blurayinfo.getChapters(self.cur[6], self.cur[5], self.playnext):
-					self.chapters.append(long(chapter))
-					self.addMark((long(chapter), self.CUT_TYPE_MARK))
+				for chapter in blurayinfo.getChapters(self.cur[6],
+						self.cur[5], self.playnext):
+					chapters.append(chapter)
 			except Exception as e:
 				print '[BlurayPlayer] error in add chapters', e
+			lastchapter = len(chapters) - 1
+			if lastchapter > 0 and chapters[lastchapter] < length / 4 or \
+					chapters[lastchapter] > length * 2:
+				x = length / chapters[lastchapter]
+			else:
+				x = 1
+			for chapter in chapters:
+				self.chapters.append(long(chapter * x))
+				self.addMark((long(chapter * x), self.CUT_TYPE_MARK))
 
 	def handleLeave(self, how):
 		if len(self.chapters):
