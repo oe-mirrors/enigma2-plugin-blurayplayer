@@ -122,7 +122,7 @@ static int storeInfo(BLURAY_TITLE_INFO* ti, titlelist *tList, int pos)
 
 static int parseInfo(const char *bd_path, titlelist *tList)
 {
-	int ii, pos = 1, ret = 0;
+	int ii, pos = 0, ret = 0;
 
 	BLURAY *bd = bd_open(bd_path, NULL);
 	if (!bd) {
@@ -135,20 +135,22 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 		fprintf(stderr, "[blurayinfo] No usable playlists found!\n");
 		goto fail;
 	}
+	if (title_count > 99)
+		title_count = 99;
 
 	int main_title = bd_get_main_title(bd);
+	BLURAY_TITLE_INFO* ti = bd_get_title_info(bd, main_title, 0);
+	storeInfo(ti, tList, pos++);
+	bd_free_title_info(ti);
 
 	for (ii = 0; ii < title_count; ii++) {
 		BLURAY_TITLE_INFO* ti = bd_get_title_info(bd, ii, 0);
-		if (ii == main_title)
-			storeInfo(ti, tList, 0);
-		else
+		if (ii != main_title)
 			storeInfo(ti, tList, pos++);
 		bd_free_title_info(ti);
 	}
 
 	ret = 1;
-
 fail:
 	bd_close(bd);
 	return ret;
@@ -156,11 +158,11 @@ fail:
 
 titlelist *newTitleList(void)
 {
-	titlelist *tList = malloc(sizeof(titlelist)*40);
+	titlelist *tList = malloc(sizeof(titlelist)*100);
 	if(!tList)
 		exit(0);
 
-	memset(tList, 0, sizeof(titlelist)*40);
+	memset(tList, 0, sizeof(titlelist)*100);
 	return tList;
 }
 
@@ -193,7 +195,7 @@ PyObject *_getTitles(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	for (i = 0; i < 1000; i++) {
+	for (i = 0; i < 100; i++) {
 		if(tList[i].clip_id[0] == '\0')
 			break;
 		else {
@@ -244,7 +246,12 @@ static int parseChapters(const char *bd_path, titlelist *tList, int title_id, in
 			start_time += end_time;
 		end_time += ti->clips[ii].out_time - ti->clips[ii].in_time;
 	}
-	for (ii = 0; ii < ti->chapter_count; ii++) {
+
+	int chapter_count = ti->chapter_count;
+	if (chapter_count > 99)
+		chapter_count = 99;
+
+	for (ii = 0; ii < chapter_count; ii++) {
 		uint64_t chaper_time = ti->chapters[ii].start;
 		if (chaper_time > start_time && chaper_time <= end_time)
 			tList[pos++].duration = chaper_time;
