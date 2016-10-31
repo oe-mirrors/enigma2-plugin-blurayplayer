@@ -250,9 +250,9 @@ static int parseChapters(const char *bd_path, titlelist *tList, int title_id, in
 			tList[pos++].duration = chaper_time;
 	}
 	tList[pos].duration = -1;
+	bd_free_title_info(ti);
 
 	ret = 1;
-
 fail:
 	bd_close(bd);
 	return ret;
