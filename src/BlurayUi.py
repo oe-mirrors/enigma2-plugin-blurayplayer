@@ -164,8 +164,8 @@ class BlurayMain(Screen):
 		try:
 			for title in blurayinfo.getTitles(self.res):
 				title_entry = _('%d. Duration %d:%02d:%02d %d chapters') % \
-						(x, title[0] / 45000 / 3600, title[0] / 45000 % 3600 / 60,
-						title[0] / 45000 % 60, title[4])
+						(x, title[0] / 90000 / 3600, title[0] / 90000 % 3600 / 60,
+						title[0] / 90000 % 60, title[4])
 				playfiles = title[1][1:].split('/')
 				languages = title[2][1:].split('/')
 				codecs = title[3][1:].split('/')

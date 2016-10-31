@@ -88,7 +88,9 @@ static int storeInfo(BLURAY_TITLE_INFO* ti, titlelist *tList, int pos)
 {
 	int ii;
 
-	tList[pos].duration = ti->duration / 2;
+	tList[pos].duration = ti->duration;
+	tList[pos].chapters = ti->chapter_count;
+
 	for (ii = 0; ii < ti->clip_count; ii++) {
 		char *clip = NULL;
 		clip = _mk_path(tList[pos].clip_id, ti->clips[ii].clip_id);
@@ -114,9 +116,6 @@ static int storeInfo(BLURAY_TITLE_INFO* ti, titlelist *tList, int pos)
 		free(coding);
 	}
 
-	tList[pos].chapters = ti->chapter_count;
-	tList[pos].title_id = pos;
-
 	return 0;
 }
 
@@ -140,13 +139,16 @@ static int parseInfo(const char *bd_path, titlelist *tList)
 
 	int main_title = bd_get_main_title(bd);
 	BLURAY_TITLE_INFO* ti = bd_get_title_info(bd, main_title, 0);
+	tList[pos].title_id = main_title;
 	storeInfo(ti, tList, pos++);
 	bd_free_title_info(ti);
 
 	for (ii = 0; ii < title_count; ii++) {
 		BLURAY_TITLE_INFO* ti = bd_get_title_info(bd, ii, 0);
-		if (ii != main_title)
+		if (ii != main_title) {
+			tList[pos].title_id = ii;
 			storeInfo(ti, tList, pos++);
+		}
 		bd_free_title_info(ti);
 	}
 
