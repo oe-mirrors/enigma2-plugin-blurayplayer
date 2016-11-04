@@ -23,10 +23,8 @@
 #include <libbluray/bluray.h>
 #include <udfread/udfread.h>
 
-#include "mpls_parse.h"
-
 typedef struct {
-	uint32_t duration;
+	uint64_t duration;
 	char clip_id[128];
 	char languages[256];
 	char coding_type[512];
@@ -60,7 +58,7 @@ const VALUE_MAP codec_map[] = {
 	{0, NULL}
 };
 
-static const char* _lookup_str(const VALUE_MAP *map, int val)
+static const char *_lookup_str(const VALUE_MAP *map, int val)
 {
 	int ii;
 
@@ -86,276 +84,34 @@ static char *_mk_path(const char *base, const char *sub)
 	return result;
 }
 
-static uint32_t _pl_duration(MPLS_PL *pl)
-{
-	int ii;
-	uint32_t duration = 0;
-	MPLS_PI *pi;
-
-	for (ii = 0; ii < pl->list_count; ii++) {
-		pi = &pl->play_item[ii];
-		duration += pi->out_time - pi->in_time;
-	}
-
-	return duration;
-}
-
-static int _filter_short(MPLS_PL *pl)
-{
-	if (_pl_duration(pl) / 45000 <= 180) {
-		return 0;
-	}
-
-	return 1;
-}
-
-static int _find_repeats(MPLS_PL *pl, const char *m2ts)
-{
-	int ii, count = 0;
-
-	for (ii = 0; ii < pl->list_count; ii++) {
-		MPLS_PI *pi;
-		pi = &pl->play_item[ii];
-		if (strcmp(pi->clip[0].clip_id, m2ts) == 0) {
-			count++;
-		}
-	}
-
-	return count;
-}
-
-static int _filter_repeats(MPLS_PL *pl)
+static int storeInfo(BLURAY_TITLE_INFO* ti, titlelist *tList, int pos)
 {
 	int ii;
 
-	for (ii = 0; ii < pl->list_count; ii++) {
-		MPLS_PI *pi;
-		pi = &pl->play_item[ii];
-		/* Ignore titles with repeated segments */
-		if (_find_repeats(pl, pi->clip[0].clip_id) > 2) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
-{
-	int ii, jj;
-
-	for (ii = 0; ii < count; ii++) {
-		if (pl->list_count != pl_list[ii]->list_count ||
-			_pl_duration(pl) != _pl_duration(pl_list[ii])) {
-			continue;
-		}
-		for (jj = 0; jj < pl->list_count; jj++) {
-			MPLS_PI *pi1, *pi2;
-			pi1 = &pl->play_item[jj];
-			pi2 = &pl_list[ii]->play_item[jj];
-			if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
-				pi1->in_time != pi2->in_time ||
-				pi1->out_time != pi2->out_time) {
-				break;
-			}
-		}
-		if (jj != pl->list_count) {
-			continue;
-		}
-		return 0;
-	}
-
-	return 1;
-}
-
-static int _qsort_str_cmp(const void *a, const void *b)
-{
-	const char *stra = *(char * const *)a;
-	const char *strb = *(char * const *)b;
-
-	return strcmp(stra, strb);
-}
-
-static MPLS_PL* _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
-{
-	MPLS_PL *pl = bd_read_mpls(name);
-
-	if (pl == NULL) {
-		fprintf(stderr, "[blurayinfo] Parse failed: %s\n", name);
-		return NULL;
-	}
-	/* Ignore short playlists */
-	if (!_filter_short(pl)) {
-		bd_free_mpls(pl);
-		return NULL;
-	}
-	/* Ignore titles with repeated segments */
-	if (!_filter_repeats(pl)) {
-		bd_free_mpls(pl);
-		return NULL;
-	}
-	/* Ignore duplicate titles */
-	if (!_filter_dup(pl_list, pl_count, pl)) {
-		bd_free_mpls(pl);
-		return NULL;
-	}
-
-	return pl;
-}
-
-static uint32_t _pl_chapter_count(MPLS_PL *pl)
-{
-	unsigned ii, chapters = 0;
-
-	/* Count the number of "entry" marks (skipping "link" marks)
-	   This is the the number of chapters */
-	for (ii = 0; ii < pl->mark_count; ii++) {
-		if (pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
-			chapters++;
-		}
-	}
-
-	return chapters;
-}
-
-static void _video_props(MPLS_STN *s, int *full_hd, int *mpeg12)
-{
-	unsigned ii;
-	*mpeg12 = 1;
-	*full_hd = 0;
-
-	for (ii = 0; ii < s->num_video; ii++) {
-		if (s->video[ii].coding_type > 4) {
-			*mpeg12 = 0;
-		}
-		/* Video format 1080i or 1080p */
-		if (s->video[ii].format == 4 || s->video[ii].format == 6) {
-			*full_hd = 1;
-		}
-	}
-}
-
-static void _audio_props(MPLS_STN *s, int *hd_audio)
-{
-	unsigned ii;
-	*hd_audio = 0;
-
-	for (ii = 0; ii < s->num_audio; ii++) {
-		if (s->audio[ii].format == 0x80) {
-			*hd_audio = 1;
-		}
-	}
-}
-
-static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
-{
-	MPLS_STN *s1 = &p1->play_item[0].stn;
-	MPLS_STN *s2 = &p2->play_item[0].stn;
-	int fhd1, fhd2, mp12_1, mp12_2;
-
-	_video_props(s1, &fhd1, &mp12_1);
-	_video_props(s2, &fhd2, &mp12_2);
-
-	/* Prefer Full HD over HD/SD */
-	if (fhd1 != fhd2) {
-		return fhd2 - fhd1;
-	}
-
-	/* Prefer H.264/VC1 over MPEG1/2 */
-	return mp12_2 - mp12_1;
-}
-
-static int _cmp_audio_props(const MPLS_PL *p1, const MPLS_PL *p2)
-{
-	MPLS_STN *s1 = &p1->play_item[0].stn;
-	MPLS_STN *s2 = &p2->play_item[0].stn;
-	int hda1, hda2;
-
-	_audio_props(s1, &hda1);
-	_audio_props(s2, &hda2);
-
-	/* prefer HD audio formats */
-	return hda2 - hda1;
-}
-
-static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
-{
-	uint32_t d1 = _pl_duration(p1);
-	uint32_t d2 = _pl_duration(p2);
-
-	/* If both longer than 30 min */
-	if (d1 > 30*60*45000 && d2 > 30*60*45000) {
-
-		/* prefer many chapters over no chapters */
-		int chap1 = _pl_chapter_count(p1);
-		int chap2 = _pl_chapter_count(p2);
-		int chap_diff = chap2 - chap1;
-		if ((chap1 < 2 || chap2 < 2) && (chap_diff < -5 || chap_diff > 5)) {
-			/* chapter count differs by more than 5 */
-			return chap_diff;
-		}
-
-		/* Check video: prefer HD over SD, H.264/VC1 over MPEG1/2 */
-		int vid_diff = _cmp_video_props(p1, p2);
-		if (vid_diff) {
-			return vid_diff;
-		}
-
-		/* compare audio: prefer HD audio */
-		int aud_diff = _cmp_audio_props(p1, p2);
-		if (aud_diff) {
-			return aud_diff;
-		}
-	}
-
-	/* Compare playlist duration, select longer playlist */
-	if (d1 < d2) {
-		return 1;
-	}
-	if (d1 > d2) {
-		return -1;
-	}
-
-	return 0;
-}
-
-static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
-{
-	int ii, jj;
-
-	tList[pos].duration = _pl_duration(pl);
-	for (ii = 0; ii < pl->list_count; ii++) {
+	tList[pos].duration = ti->duration / 2;
+	for (ii = 0; ii < ti->clip_count; ii++) {
 		char *clip = NULL;
-		MPLS_PI *pi = &pl->play_item[ii];
-		clip = _mk_path(tList[pos].clip_id, pi->clip[0].clip_id);
-		if (clip == NULL) {
+		clip = _mk_path(tList[pos].clip_id, ti->clips[ii].clip_id);
+		if (clip == NULL)
 			continue;
-		}
 		strcpy(tList[pos].clip_id, clip);
 		free(clip);
+	}
 
-		/* Get an audio track info from the first clip */
-		if (ii == 0) {
-			for (jj = 0; jj < pi->stn.num_audio; jj++) {
-				char *lang = NULL, *coding = NULL;
-				lang = _mk_path(tList[pos].languages, pi->stn.audio[jj].lang);
-				if (lang == NULL) {
-					continue;
-				}
-				strcpy(tList[pos].languages, lang);
-				free(lang);
+	BLURAY_CLIP_INFO *ci = &ti->clips[0];
+	for (ii = 0; ii < ci->audio_stream_count; ii++) {
+		char *lang = NULL, *coding = NULL;
+		lang = _mk_path(tList[pos].languages, (const char *)ci->audio_streams[ii].lang);
+		if (lang == NULL)
+			continue;
+		strcpy(tList[pos].languages, lang);
+		free(lang);
 
-				coding = _mk_path(tList[pos].coding_type, _lookup_str(codec_map, pi->stn.audio[jj].coding_type));
-				if (coding == NULL) {
-					 continue;
-				}
-				strcpy(tList[pos].coding_type, coding);
-				free(coding);
-			}
-		}
-		//printf("%s.m2ts\n", tList[pos].clip_id);
-		//printf("%s\n", tList[pos].languages);
-		//printf("%s\n", tList[pos].coding_type);
+		coding = _mk_path(tList[pos].coding_type, _lookup_str(codec_map, ci->audio_streams[ii].coding_type));
+		if (coding == NULL)
+			continue;
+		strcpy(tList[pos].coding_type, coding);
+		free(coding);
 	}
 
 	return 0;
@@ -363,95 +119,34 @@ static int storeInfo(MPLS_PL *pl, titlelist *tList, int pos)
 
 static int parseInfo(const char *bd_path, titlelist *tList)
 {
-	//printf("Directory: %s:\n", bd_path);
-	MPLS_PL *pl;
-	int ii, ti = 1, pl_ii = 0, main_ii = 0, ret = 0;
-	MPLS_PL *pl_list[1000];
-	struct stat st;
-	char *path = NULL;
-	DIR *dir = NULL;
+	int ii, pos = 1, ret = 0;
 
-	/* Open playlist directory */
-	path = _mk_path(bd_path, "/BDMV/PLAYLIST");
-	if (path == NULL) {
-		fprintf(stderr, "[blurayinfo] Failed to find playlist path: %s\n", bd_path);
+	BLURAY *bd = bd_open(bd_path, NULL);
+	if (!bd) {
+		fprintf(stderr, "[blurayinfo] Failed to open:%s\n", bd_path);
 		return ret;
 	}
-	dir = opendir(path);
-	if (dir == NULL) {
-		fprintf(stderr, "[blurayinfo] Failed to open dir: %s\n", path);
-		goto dir_fail;
+	int title_count = bd_get_titles(bd, TITLES_RELEVANT, 180);
+	if (title_count == 0) {
+		fprintf(stderr, "[blurayinfo] No usable playlists found!\n");
+		goto titles_fail;
 	}
 
-	/* Open and sort playlists */
-	char **dirlist = (char**)calloc(10001, sizeof(char*));
-	if (!dirlist) {
-		fprintf(stderr, "[blurayinfo] Alloc dirlist failed\n");
-		goto dirlist_fail;
-	}
-	struct dirent *ent;
-	int jj = 0;
-	for (ent = readdir(dir); ent != NULL && jj < 1000; ent = readdir(dir)) {
-		char *s = (char*)malloc(strlen(ent->d_name) + 1);
-		if (s) {
-			dirlist[jj++] = strcpy(s, ent->d_name);
-		}
-	}
-	qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
+	int main_title = bd_get_main_title(bd);
 
-	/* Parse playlists */
-	for (jj = 0; dirlist[jj] != NULL && pl_ii < 1000; jj++) {
-		char *name = NULL;
-		name = _mk_path(path, dirlist[jj]);
-		free(dirlist[jj]);
-		if (name == NULL) {
-			continue;
-		}
-		if (stat(name, &st)) {
-			free(name);
-			continue;
-		}
-		if (!S_ISREG(st.st_mode)) {
-			free(name);
-			continue;
-		}
-		/* Filter out short and duplicate playlists */
-		pl = _process_file(name, pl_list, pl_ii);
-		free(name);
-		if (pl != NULL) {
-			pl_list[pl_ii] = pl;
-			/* Main title guessing */
-			if (pl_ii > 0 && _pl_guess_main_title(pl_list[pl_ii], pl_list[main_ii]) <= 0) {
-				main_ii = pl_ii;
-			}
-			pl_ii++;
-		}
-	}
-
-	if (pl_ii >= 999) {
-		fprintf(stderr, "[blurayinfo] Too many play lists given. Output is truncated.");
-	}
-
-	/* Store and clean usable playlists */
-	for (ii = 0; ii < pl_ii; ii++) {
-		//printf("%d -- Duration: %4u:%02u ", ii, _pl_duration(pl_list[ii]) / (45000 * 60), (_pl_duration(pl_list[ii]) / 45000) % 60);
-		if (ii == main_ii) {
-			//printf("Main ");
-			storeInfo(pl_list[ii], tList, 0);
-		}
-		else {
-			storeInfo(pl_list[ii], tList, ti++);
-		}
-		bd_free_mpls(pl_list[ii]);
+	for (ii = 0; ii < title_count; ii++) {
+		BLURAY_TITLE_INFO* ti = bd_get_title_info(bd, ii, 0);
+		if (ii == main_title)
+			storeInfo(ti, tList, 0);
+		else
+			storeInfo(ti, tList, pos++);
+		bd_free_title_info(ti);
 	}
 
 	ret = 1;
-	free(dirlist);
-dirlist_fail:
-	closedir(dir);
-	dir = NULL;
-dir_fail:
-	free(path);
+
+titles_fail:
+	bd_close(bd);
 	return ret;
 }
 
