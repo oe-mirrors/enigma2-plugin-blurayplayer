@@ -173,7 +173,7 @@ class BlurayMain(Screen):
 
 	def mountIsoCallback(self, result, retval, extra_args):
 		remount = extra_args
-		if remount != 0:
+		if remount != 0 and len(remount) != 0:
 			del self.remountTimer
 		if os.path.isdir(os.path.join(self.res, 'BDMV/STREAM/')):
 			self.OpenDisc()
