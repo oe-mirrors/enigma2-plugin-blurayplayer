@@ -1,8 +1,3 @@
-from Components.config import config, getConfigListEntry, \
-	ConfigNothing, ConfigSelection, ConfigOnOff
-from Components.PluginComponent import plugins
-from Components.SystemInfo import SystemInfo
-from Plugins.Plugin import PluginDescriptor
 from Screens.AudioSelection import AudioSelection
 from Tools.ISO639 import LanguageCodes
 
