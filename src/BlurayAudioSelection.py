@@ -49,17 +49,13 @@ class BlurayAudioSelection(AudioSelection):
 					selected = 'X'
 					selectedidx = x
 
-				cnt = 0
 				for lang in languages:
-					if cnt:
+					if language:
 						language += ' / '
 					if lang in LanguageCodes:
 						language += _(LanguageCodes[lang][0])
-					elif lang == 'und':
-						''
-					else:
+					elif lang != 'und':
 						language += lang
-					cnt += 1
 
 				streams.append((x, '', number, description, language, selected))
 
