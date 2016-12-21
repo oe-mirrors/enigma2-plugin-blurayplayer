@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma-plugin 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-30 23:42+0200\n"
+"POT-Creation-Date: 2016-12-21 19:09+0200\n"
 "PO-Revision-Date: 2016-03-03 20:58+0200\n"
 "Last-Translator: Tapat <taapat@gmail.com>\n"
 "Language-Team: Taapat <taapat@gmail.com>\n"
@@ -18,14 +18,8 @@ msgstr ""
 msgid "%d. Duration %d:%02d:%02d %d chapters"
 msgstr "%d. Ilgums %d:%02d:%02d %d daļas"
 
-msgid "Audio plugins"
-msgstr "Audio spraudņi"
-
 msgid "Blu-ray player"
 msgstr "Blu-ray atskaņotājs"
-
-msgid "Channel"
-msgstr "Kanāls"
 
 msgid "Error in reading titles..."
 msgstr "Kļūda nolasot titrus..."
@@ -33,23 +27,8 @@ msgstr "Kļūda nolasot titrus..."
 msgid "Exit"
 msgstr "Iziet"
 
-msgid "Multi channel downmix"
-msgstr "Dudzkanālu skaņas dekodēšana"
-
 msgid "Ok"
 msgstr "Ok"
 
-msgid "Select audio track"
-msgstr "Izvēlieties skaņas celiņu"
-
 msgid "Stop playing this movie?"
 msgstr "Apturēt šīs filmas atskaņošanu?"
-
-msgid "left"
-msgstr "kreisais"
-
-msgid "right"
-msgstr "labais"
-
-msgid "stereo"
-msgstr "stereo"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma-plugin 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-30 23:42+0200\n"
+"POT-Creation-Date: 2016-12-21 19:09+0200\n"
 "PO-Revision-Date: 2016-07-23 20:46+0300\n"
 "Last-Translator: vovan43 <vovan43@ex.ua>\n"
 "Language-Team: Taapat <taapat@gmail.com>\n"
@@ -18,14 +18,8 @@ msgstr ""
 msgid "%d. Duration %d:%02d:%02d %d chapters"
 msgstr "%d. Тривалість %d:%02d:%02d %d глав"
 
-msgid "Audio plugins"
-msgstr "Аудіо плагіни"
-
 msgid "Blu-ray player"
 msgstr "Блюрей плеєр"
-
-msgid "Channel"
-msgstr "Канал"
 
 msgid "Error in reading titles..."
 msgstr "Помилка читання заголовку..."
@@ -33,23 +27,8 @@ msgstr "Помилка читання заголовку..."
 msgid "Exit"
 msgstr "Вийти"
 
-msgid "Multi channel downmix"
-msgstr "Мультиканальне мікшування"
-
 msgid "Ok"
 msgstr "OK"
 
-msgid "Select audio track"
-msgstr "Вибір аудіо дорожки"
-
 msgid "Stop playing this movie?"
 msgstr "Зупинити відтворення цього відео?"
-
-msgid "left"
-msgstr "вліво"
-
-msgid "right"
-msgstr "вправо"
-
-msgid "stereo"
-msgstr "стерео"
