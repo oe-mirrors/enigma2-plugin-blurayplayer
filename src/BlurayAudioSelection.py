@@ -15,13 +15,13 @@ class BlurayAudioSelection(AudioSelection):
 
 	def fillList(self, arg=None):
 		AudioSelection.fillList(self, arg)
-		streams = []
-		selectedidx = 0
 		service = self.session.nav.getCurrentService()
 		audio = service and service.audioTracks()
 		n = audio and audio.getNumberOfTracks() or 0
 
 		if n > 0:
+			streams = []
+			selectedidx = 0
 			selectedAudio = audio.getCurrentTrack()
 			lang_len = len(self.languages)
 			lang_dif = lang_len - n
