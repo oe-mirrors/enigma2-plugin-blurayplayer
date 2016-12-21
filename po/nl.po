@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-30 23:42+0200\n"
+"POT-Creation-Date: 2016-12-21 19:03+0200\n"
 "PO-Revision-Date: 2016-10-08 10:09+0200\n"
 "Last-Translator: Rob van der Does <RobvanderDoes@Gmail.com>\n"
 "Language-Team: \n"
@@ -17,14 +17,8 @@ msgstr ""
 msgid "%d. Duration %d:%02d:%02d %d chapters"
 msgstr "%d. Duur %d:%02d:%02d %d kapittel"
 
-msgid "Audio plugins"
-msgstr "Audio plugins"
-
 msgid "Blu-ray player"
 msgstr "Blu-ray player"
-
-msgid "Channel"
-msgstr "Kanaal"
 
 msgid "Error in reading titles..."
 msgstr "Fout bij lezen titels..."
@@ -32,23 +26,14 @@ msgstr "Fout bij lezen titels..."
 msgid "Exit"
 msgstr "Afsluiten"
 
-msgid "Multi channel downmix"
-msgstr "Multi channel downmix"
-
 msgid "Ok"
 msgstr "OK"
 
-msgid "Select audio track"
-msgstr "Kies audio-track"
+msgid "Please select the blu-ray disc"
+msgstr ""
 
 msgid "Stop playing this movie?"
 msgstr "Stoppen met afspelen van deze film?"
 
-msgid "left"
-msgstr "links"
-
-msgid "right"
-msgstr "rechts"
-
-msgid "stereo"
-msgstr "stereo"
+msgid "Watch blu-ray discs in folder or iso"
+msgstr ""
