@@ -177,7 +177,7 @@ class BlurayMain(Screen):
 		self['list'].setList(content)
 
 		thumbnail = None
-		if self.res[-4:].lower() != '.iso':
+		if self.res[-4:].lower() not in ('.iso', '.img', '.nrg'):
 			path = os.path.join(self.res, 'BDMV/META/DL/')
 			if os.path.exists(path):
 				fileSize = 1000000
