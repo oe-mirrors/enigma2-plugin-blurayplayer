@@ -2,7 +2,7 @@ BlurayPlayer
 =========
 Simple enigma2 plugin to to play Blu-ray videos.
 
-Support play from folders and local iso images.
+Support playback from folders and iso images.
 
 Plugin read the titles and give for enigma2 player relevant m2ts file.
 First in the list will be the main title.
@@ -13,7 +13,7 @@ Just press Ok in MovieSelection screen on bluray folder or iso file to open titl
 
 Depends
 -------
-libbluray (You can find it in the download folder).
+libbluray, libudfread (You can find them in the download folder).
 
 Download
 -------
