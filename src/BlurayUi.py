@@ -59,11 +59,12 @@ class BlurayPlayer(MoviePlayer):
 								i = audio.getTrackInfo(x)
 								if self.cur[3][x] != i.getDescription():
 									li -= 1
-							if li > 0 and li <= n:
-								print '[BlurayPlayer] select autolanguage track', li, lang
-								audio.selectTrack(li)
+							if li >= 0 and li <= n:
 								autolanguagetrack = True
-								break
+								if li > 0:
+									print '[BlurayPlayer] select autolanguage track', li, lang
+									audio.selectTrack(li)
+									break
 						elif li < n:
 							li += 1
 						else:
