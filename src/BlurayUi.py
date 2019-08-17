@@ -1,12 +1,13 @@
 import os
 
-from enigma import ePicLoad, eServiceReference, eTimer, getDesktop
+from enigma import ePicLoad, eServiceReference, eTimer, getDesktop, iPlayableService
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config
 from Components.Console import Console
 from Components.Label import Label
 from Components.Pixmap import Pixmap
+from Components.ServiceEventTracker import ServiceEventTracker
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Screens.InfoBar import InfoBar, MoviePlayer
@@ -24,6 +25,10 @@ class BlurayPlayer(MoviePlayer):
 		MoviePlayer.__init__(self, session, service)
 		self.skinName = ['BlurayPlayer', 'MoviePlayer']
 		self.servicelist = InfoBar.instance and InfoBar.instance.servicelist
+		self.__event_tracker = ServiceEventTracker(screen=self, eventmap=
+			{
+				iPlayableService.evSeekableStatusChanged: self.blurayseekableStatusChanged
+			})
 		self.cur = cur
 		self.playnext = playnext
 		self.chapters = []
@@ -38,6 +43,33 @@ class BlurayPlayer(MoviePlayer):
 					self.addMark((long(chapter), self.CUT_TYPE_MARK))
 			except Exception as e:
 				print '[BlurayPlayer] error in add chapters', e
+
+	def blurayseekableStatusChanged(self):
+		service = self.session.nav.getCurrentService()
+		audio = service and service.audioTracks()
+		if audio:
+			autolanguagetrack = None
+			n = audio.getNumberOfTracks()
+			for autolang in (config.autolanguage.audio_autoselect1.value, config.autolanguage.audio_autoselect2.value, config.autolanguage.audio_autoselect3.value, config.autolanguage.audio_autoselect4.value):
+				if autolang:
+					li = 0
+					for lang in self.cur[2]:
+						if autolang == lang:
+							for x in range(li):
+								i = audio.getTrackInfo(x)
+								if self.cur[3][x] != i.getDescription():
+									li -= 1
+							if li > 0 and li <= n:
+								print '[BlurayPlayer] select autolanguage track', li, lang
+								audio.selectTrack(li)
+								autolanguagetrack = True
+								break
+						elif li < n:
+							li += 1
+						else:
+							break
+				if autolanguagetrack:
+					break
 
 	def handleLeave(self, how):
 		if len(self.chapters):
