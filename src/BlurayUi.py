@@ -64,7 +64,7 @@ class BlurayPlayer(MoviePlayer):
 								if li > 0:
 									print '[BlurayPlayer] select autolanguage track', li, lang
 									audio.selectTrack(li)
-									break
+								break
 						elif li < n:
 							li += 1
 						else:
