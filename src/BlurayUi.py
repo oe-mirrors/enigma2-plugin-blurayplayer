@@ -55,19 +55,18 @@ class BlurayPlayer(MoviePlayer):
 						li = 0
 						for lang in self.cur[2]:
 							if autolang == lang:
-								for x in range(li):
-									i = audio.getTrackInfo(x)
-									if self.cur[3][x] != i.getDescription():
-										li -= 1
-								if li >= 0 and li <= n:
-									if li > 0:
-										print '[BlurayPlayer] select autolanguage track', li, lang
-										audio.selectTrack(li)
+								ti = 0
+								for x in range(li+1):  # Remove unrecognized tracks from the title list
+									i = audio.getTrackInfo(ti)
+									if self.cur[3][x] == i.getDescription() and ti <= n:
+										ti += 1
+								if ti > 0:
+									ti -= 1
+									if ti > 0:
+										print '[BlurayPlayer] select autolanguage track', ti, lang
+										audio.selectTrack(ti)
 									return
-							elif li < n:
-								li += 1
-							else:
-								break
+							li += 1
 
 	def handleLeave(self, how):
 		if len(self.chapters):
