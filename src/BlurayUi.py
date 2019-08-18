@@ -48,29 +48,26 @@ class BlurayPlayer(MoviePlayer):
 		service = self.session.nav.getCurrentService()
 		audio = service and service.audioTracks()
 		if audio:
-			autolanguagetrack = None
 			n = audio.getNumberOfTracks()
-			for autolang in (config.autolanguage.audio_autoselect1.value, config.autolanguage.audio_autoselect2.value, config.autolanguage.audio_autoselect3.value, config.autolanguage.audio_autoselect4.value):
-				if autolang:
-					li = 0
-					for lang in self.cur[2]:
-						if autolang == lang:
-							for x in range(li):
-								i = audio.getTrackInfo(x)
-								if self.cur[3][x] != i.getDescription():
-									li -= 1
-							if li >= 0 and li <= n:
-								autolanguagetrack = True
-								if li > 0:
-									print '[BlurayPlayer] select autolanguage track', li, lang
-									audio.selectTrack(li)
+			for langval in (config.autolanguage.audio_autoselect1.value.split(' '), config.autolanguage.audio_autoselect2.value.split(' '), config.autolanguage.audio_autoselect3.value.split(' '), config.autolanguage.audio_autoselect4.value.split(' ')):
+				for autolang in langval:
+					if autolang:
+						li = 0
+						for lang in self.cur[2]:
+							if autolang == lang:
+								for x in range(li):
+									i = audio.getTrackInfo(x)
+									if self.cur[3][x] != i.getDescription():
+										li -= 1
+								if li >= 0 and li <= n:
+									if li > 0:
+										print '[BlurayPlayer] select autolanguage track', li, lang
+										audio.selectTrack(li)
+									return
+							elif li < n:
+								li += 1
+							else:
 								break
-						elif li < n:
-							li += 1
-						else:
-							break
-				if autolanguagetrack:
-					break
 
 	def handleLeave(self, how):
 		if len(self.chapters):
