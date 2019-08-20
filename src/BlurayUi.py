@@ -51,7 +51,7 @@ class BlurayPlayer(MoviePlayer):
 			n = audio.getNumberOfTracks()
 			for langval in (config.autolanguage.audio_autoselect1.value.split(' '), config.autolanguage.audio_autoselect2.value.split(' '), config.autolanguage.audio_autoselect3.value.split(' '), config.autolanguage.audio_autoselect4.value.split(' ')):
 				for autolang in langval:
-					if autolang:
+					if autolang and autolang in self.cur[2]:
 						li = 0
 						for lang in self.cur[2]:
 							if autolang == lang:
