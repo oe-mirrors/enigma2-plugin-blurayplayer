@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 
 from enigma import ePicLoad, eServiceReference, eTimer, getDesktop, iPlayableService
@@ -42,7 +44,7 @@ class BlurayPlayer(MoviePlayer):
 					self.chapters.append(long(chapter))
 					self.addMark((long(chapter), self.CUT_TYPE_MARK))
 			except Exception as e:
-				print '[BlurayPlayer] error in add chapters', e
+				print('[BlurayPlayer] error in add chapters', e)
 
 	def blurayseekableStatusChanged(self):
 		service = self.session.nav.getCurrentService()
@@ -57,7 +59,7 @@ class BlurayPlayer(MoviePlayer):
 							if self.cur[3][li] == audio.getTrackInfo(ti).getDescription():  # Ignore unrecognized tracks
 								if autolang == lang:
 									if ti > 0:
-										print '[BlurayPlayer] select autolanguage track', ti, lang
+										print('[BlurayPlayer] select autolanguage track', ti, lang)
 										audio.selectTrack(ti)
 									return
 								elif ti < n:
@@ -97,7 +99,7 @@ class BlurayPlayer(MoviePlayer):
 		pass
 
 	def audioSelection(self):
-		from BlurayAudioSelection import BlurayAudioSelection
+		from .BlurayAudioSelection import BlurayAudioSelection
 		self.session.open(BlurayAudioSelection, infobar=self,
 				languages=self.cur[2], codecs=self.cur[3])
 
@@ -193,7 +195,7 @@ class BlurayMain(Screen):
 				try:
 					os.mkdir(self.res)
 				except Exception as e:
-					print '[BlurayPlayer] Cannot create', self.res, e
+					print('[BlurayPlayer] Cannot create', self.res, e)
 			self.Console.ePopen('mount -r %s -t udf %s' % (iso_path, self.res),
 					self.mountIsoCallback, 0)
 
@@ -226,7 +228,7 @@ class BlurayMain(Screen):
 				content.append((title_entry, playfiles, languages, codecs, title[4], title[5]))
 				x += 1
 		except Exception as e:
-			print '[BlurayPlayer] blurayinfo.getTitles:', e
+			print('[BlurayPlayer] blurayinfo.getTitles:', e)
 			content.append((_('Error in reading titles...'), [None], None, None, 0, 0))
 		self['list'].setList(content)
 
@@ -319,5 +321,5 @@ class BlurayMain(Screen):
 		try:
 			os.rmdir(self.res)
 		except Exception as e:
-			print '[BlurayPlayer] Cannot remove', self.res, e
+			print('[BlurayPlayer] Cannot remove', self.res, e)
 		self.close()
